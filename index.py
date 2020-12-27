@@ -18,6 +18,6 @@ for action in actions:
 for action in actions:
     c[action] += 1
 
-print('daimond025')
+print('daimond026')
 
 
