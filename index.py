@@ -15,3 +15,5 @@ for action in actions:
     c[action] += 1
 
 print(sorted(c.keys()))
+
+
