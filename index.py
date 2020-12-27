@@ -14,6 +14,10 @@ c = collections.Counter()
 for action in actions:
     c[action] += 1
 
+
+for action in actions:
+    c[action] += 1
+
 print(sorted(c.keys()))
 
 
