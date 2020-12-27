@@ -18,6 +18,6 @@ for action in actions:
 for action in actions:
     c[action] += 1
 
-print(sorted(c.keys()))
+print('daimond025')
 
 
