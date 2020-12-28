@@ -24,8 +24,8 @@ def game_core_my(number):
 
     # шаг уточнения границ
     step = 20
-
     predict = 0
+
     while number != predict:
         count += 1
 
