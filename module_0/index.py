@@ -46,13 +46,13 @@ def game_core_my(number):
                 mark_down += step
             if number <= mark_upper - step:
                 mark_upper -= step
-            step = int(step / 2)
+            step = int(step/2)
         elif mark_upper == mark_upper_temp:
             if number >= mark_down + step:
                 mark_down += step
             if number <= mark_upper - step:
                 mark_upper -= step
-            step = int(step / 2)
+            step = int(step/2)
 
         # сравнение границ с искомым числом
         if mark_down == number:
