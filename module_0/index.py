@@ -6,59 +6,38 @@ border_up = 100
 
 
 def game_core_my(number):
-    """Алгоритм делит рассматриваемый диапазон  пополам и смотрит в каком промежутке искомое число нахожится
-    Кроме этого если при процессе разбиения одна граница повторяется значит искомое число находится где-то с
-    этой границей. Воодится уточняющий коэффициент step который итерационно уменьшается, но он еще изменяет изменяет
-    границы и устанавливает их более точно"""
+    """
+    Алгоритм делит рассматриваемый диапазон  пополам и смотрит в каком промежутке находится искомое число
+    """
 
+    """количество попыток 
+    отгадывания"""
     count = 1
 
     """Границы поиска числа"""
     mark_down = border_down
     mark_upper = border_up
 
-    """Границы поиска числа, 
-    дублируют границы для индексации повтора границ"""
-    mark_down_temp = mark_down
-    mark_upper_temp = mark_upper
-
-    # шаг уточнения границ
-    step = 20
     predict = 0
 
     while number != predict:
         count += 1
 
         # разбиение на диапазон
-        centre = int((mark_down + mark_upper) / 2)
+        centre = int((mark_down + mark_upper + 1) / 2)
 
         # сдвиг границ
         if number >= centre:
             mark_down = centre
-            mark_down_temp = centre
         else:
             mark_upper = centre
-            mark_upper_temp = centre
 
-        # уточнение границ с учетом шага step
-        if mark_down == mark_down_temp:
-            if number >= mark_down + step:
-                mark_down += step
-            if number <= mark_upper - step:
-                mark_upper -= step
-            step = int(step/2)
-        elif mark_upper == mark_upper_temp:
-            if number >= mark_down + step:
-                mark_down += step
-            if number <= mark_upper - step:
-                mark_upper -= step
-            step = int(step/2)
-
-        # сравнение границ с искомым числом
+        # сравнение  определенных границ с искомым числом
         if mark_down == number:
             predict = mark_down
         elif mark_upper == number:
             predict = mark_upper
+
     return count
 
 
