@@ -1,7 +1,7 @@
 import numpy as np
 
 "Границы нахождения искмого значения"
-border_down = 1
+border_down = 0
 border_up = 100
 
 
@@ -29,15 +29,10 @@ def game_core_my(number):
         # сдвиг границ
         if number >= centre:
             mark_down = centre
+            predict = mark_down
         else:
             mark_upper = centre
-
-        # сравнение  определенных границ с искомым числом
-        if mark_down == number:
-            predict = mark_down
-        elif mark_upper == number:
             predict = mark_upper
-
     return count
 
 
