@@ -12,7 +12,7 @@ def game_core_my(number):
 
     """количество попыток 
     отгадывания"""
-    count = 1
+    count = 0
 
     """Границы поиска числа"""
     mark_down = border_down
