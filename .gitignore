@@ -2,3 +2,7 @@
 data.json
 first notebook.ipynb
 StudentsPerformance.csv
+/data
+
+/module_1/movie_bd_v5.csv
+/module_1/.ipynb_checkpoints/*
