@@ -1,23 +1,9 @@
-import json
-import collections
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from collections import Counter
+from IPython.core.display import display
 
-with open('data.json', 'rb') as infile:
-    data = json.load(infile)
-data_list = data['events_data']
-
-actions = []
-for item in data_list:
-    if item['category'] == 'report':
-        actions.append(item['client_id'])
-
-c = collections.Counter()
-for action in actions:
-    c[action] += 1
-
-
-for action in actions:
-    c[action] += 1
-
-print('daimond')
-
-
+my_secret = [x for x in range(1, 301, 7) if x%10 == 7 or x%10 == 1]
+np.array(np.ones(5) )
