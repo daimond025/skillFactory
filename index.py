@@ -12,14 +12,13 @@ import seaborn as sns
 
 df = pd.DataFrame({
     'year': [2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018],
-    'temp': [-4.7, -6.1, -5.5, -3.3, -7.1, -3.1, -5.2, -7.3, -12.1, -6.6, -5.9, -6.3]
+    'temp': [-4.7, -6.1, -5.5, -3.3, -7.1, -3.1, -5.2, -7.3, -12.1, -6.6, -5.9, -6.3],
+    'temp_2': [6.1, 9.2, 11.5, 8.6, 12.1, 3.9, 8.4, 10.1, 9.4, 8.9, ]
 })
 
-temp = df['temp'].copy()
+temp = df['temp_2'].copy()
 print(temp.mean())
-print(temp.median())
 print(temp.std())
-print(temp.max() - temp.min())
 
 temp_q1 = temp.quantile(0.25, interpolation='midpoint')
 temp_q3 = temp.quantile(0.75, interpolation='midpoint')
