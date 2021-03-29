@@ -4,69 +4,104 @@ import seaborn as sns
 from itertools import combinations
 from scipy.stats import ttest_ind
 
+import warnings
+warnings.filterwarnings("ignore")
 
 # инфо
 def infoColumn(data, column):
     print(data.loc[:, [column]].info())
 
 
-#  универсаклная функция замены пропуска или nan на none
+#  универсаклная функция замены пропуска  none
 def replaceEmptySkipValue(data, columns):
     for column in columns:
         data[column] = data[column].apply(
             lambda x: None if pd.isnull(x) else (None if (x == 'nan' or str(x).strip() == '') else x))
     return data
 
+# преобразование незвестного значения
+def ordanaryValidValue(data, column,needOutliersData=False ):
+    data = replaceEmptySkipValue(data, [column])
+
+    data = determNoneValue(data, column)
+
+    if needOutliersData:
+        data = outliersData(data, column)
+
+    return data
+
 
 # фильтрация данных на валидных значениях + значение по умочанию
 def permitValidValue(data, column, premit_value, defaulVaue=None, needOutliersData=False):
     data = replaceEmptySkipValue(data, [column])
+
     data[column] = data[column].apply(lambda x: x if x in premit_value else defaulVaue)
 
+    data = determNoneValue(data, column)
     if needOutliersData:
-        return outliersData(data, column)
-    else:
-        return data
+        data = outliersData(data, column)
+    return data
 
 
-# фильтрауия данных
+# фильтрация положительных данных
 def permitPositivValue(data, column, defaulVaue=None, needOutliersData=False):
     data = replaceEmptySkipValue(data, [column])
     data[column] = data[column].apply(lambda x: int(x) if x >= 0 else defaulVaue)
+
+    data = determNoneValue(data, column)
     if needOutliersData:
-        return outliersData(data, column)
-    else:
+        data = outliersData(data, column)
+
+    return data
+
+# замена пропусков данных  модами
+def determNoneValue(data, column):
+    value_ = data[column].mode()[0]
+    data.loc[:, column].fillna(value_, inplace=True)
+    # data[column] = data[column].fillna(value_)
+    return data
+
+
+
+#  функция фильтраци выбросов - если винтили равны  -  не делаем выросы - распределени примено одинаково
+def outliersData(data, column):
+    quantile_3 =  data[column].quantile(0.75)
+    quantile_1 =  data[column].quantile(0.25)
+    if quantile_3 == quantile_1:
         return data
 
-
-#  функция фильтраци выбросов
-def outliersData(data, column):
-    IQR = data[column].quantile(0.75) - data[column].quantile(0.25)
-    column_min = data[column].quantile(0.25) - 1.5 * IQR
-    column_max = data[column].quantile(0.75) + 1.5 * IQR
+    IQR = quantile_3 - quantile_1
+    column_min = quantile_1 - 1.5 * IQR
+    column_max = quantile_3 + 1.5 * IQR
 
     data = data[data[column].between(column_min, column_max)]
     return data
 
 
-student = pd.read_csv("/skillFactory/module_2/stud_math.xls")
-# удалание строки - не было в описании
-student.drop(['studytime, granular'], inplace=True, axis=1)
+
+student = pd.read_csv("../../module_2/stud_math.xls")
+
+#  неизвестный столбец - лишнеи данные не помешают
+student.rename(columns={'studytime, granular':'granular'}, inplace=True)
+
 
 # TODO Числовые данные   granular freetime goout health absences score
 # age - выбросов нет
 student = permitPositivValue(student, 'age')
 
+# granular - неизвестный параметр
+student = ordanaryValidValue(student, 'granular',  needOutliersData=True)
+
 # Medu - образование матери , доступыне значения (0,1,2,3,4)
-student = permitValidValue(student, 'Medu', [1, 2, 3, 4], needOutliersData=True)
+student = permitValidValue(student, 'Medu', [0, 1, 2, 3, 4], needOutliersData=True)
 
 # Fedu - образование отца , доступыне значения (0,1,2,3,4)
-student = permitValidValue(student, 'Fedu', [1, 2, 3, 4], needOutliersData=True)
+student = permitValidValue(student, 'Fedu', [0, 1, 2, 3, 4], needOutliersData=True)
 
 # traveltime - время в пути до школы
 student = permitValidValue(student, 'traveltime', [1, 2, 3, 4], needOutliersData=True)
 
-# studytime  - ввремя на учёбу помимо школы в неделю
+# studytime  - время на учёбу помимо школы в неделю
 student = permitValidValue(student, 'studytime', [1, 2, 3, 4], needOutliersData=True)
 
 # failures   - количество внеучебных неудач
@@ -77,6 +112,7 @@ student = permitValidValue(student, 'famrel', [1, 2, 3, 4, 5], needOutliersData=
 
 # freetime   - свободное время после школы
 student = permitValidValue(student, 'freetime', [1, 2, 3, 4, 5], needOutliersData=True)
+
 # goout - проведение времени с друзьями
 student = permitValidValue(student, 'goout', [1, 2, 3, 4, 5], needOutliersData=True)
 # goout - текущее состояние здоровья
@@ -87,6 +123,10 @@ student = permitPositivValue(student, 'absences', needOutliersData=True)
 
 # score — баллы по госэкзамену по математике
 student = permitPositivValue(student, 'score', needOutliersData=True)
+
+
+
+
 
 # TODO  уникальных значений для номинативных переменных
 # sex — пол ученика ('F' - женский, 'M' - мужской)
@@ -139,7 +179,6 @@ student = permitValidValue(student, 'romantic', ['yes', 'no'])
 
 correlation = student.corr()
 
-
 # sns.pairplot(student, kind = 'reg')
 
 
@@ -169,10 +208,9 @@ def get_stat_dif(date, column):
             break
 
 
-for col in ['Medu', 'Fedu' , 'traveltime' , 'studytime' , 'failures' ,'famrel', 'freetime', 'goout','health',
+for col in ['Medu', 'Fedu', 'traveltime', 'studytime', 'failures', 'famrel', 'freetime', 'goout', 'health',
             'sex', 'address', 'famsize', 'Pstatus', 'Mjob', 'Fjob', 'reason', 'guardian',
-                        'schoolsup' , 'famsup' ,'paid' , 'activities' , 'nursery' , 'higher' , 'internet' ,
-                        'romantic'
+            'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet',
+            'romantic'
             ]:
     get_stat_dif(student, col)
-
