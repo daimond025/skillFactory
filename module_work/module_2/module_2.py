@@ -233,7 +233,7 @@ def get_stat_dif(date, column):
             break
 
 
-for col in ['Medu', 'Fedu', 'traveltime', 'studytime', 'failures', 'famrel', 'freetime', 'goout', 'health',
+for col in ['age', 'Medu', 'Fedu', 'traveltime', 'studytime', 'failures', 'famrel', 'freetime', 'goout', 'health',
             'sex', 'address', 'famsize', 'Pstatus', 'Mjob', 'Fjob', 'reason', 'guardian',
             'schoolsup', 'famsup', 'paid', 'activities', 'nursery', 'higher', 'internet',
             'romantic', 'absences']:
