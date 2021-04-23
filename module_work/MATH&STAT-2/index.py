@@ -1,3 +1,5 @@
+import math
+
 import numpy as np # для работы с массивами
 import pandas as pd # для работы DataFrame
 import seaborn as sns # библиотека для визуализации статистических данных
@@ -62,9 +64,20 @@ CGPA= data['CGPA']
 # w_hat_st = np.linalg.inv(A_st.T@A_st)@A_st.T@Y_st.values
 # print(w_hat_st)
 
-F = np.array([[2,1] ,[1,2] ])
-u = np.array([1,-1])
-v = np.array([1,1])
+a = 1
+b = -10
+c = 24
 
-print(F@u.T)
-print(F@v.T)
+discr = b ** 2 - 4 * a * c
+x1 = (-b + math.sqrt(discr)) / (2 * a)
+x2 = (-b - math.sqrt(discr)) / (2 * a)
+print(x1)
+print(x2)
+
+# F = np.array([[-7,6],[-12,11] ])
+# v1 = np.array([1,2])
+# v2 = np.array([1,1])
+#
+# print(F@v1)
+# print(F@v2)
+# print(x2)
