@@ -52,7 +52,7 @@ class PrepareDate():
         df_output = pd.get_dummies(df_output, columns=['City', 'Cuisine Style', 'URL_TA'], dummy_na=True)
 
         # убираем не нужные для модели признаки
-        object_columns = [s for s in df_output.columns if df_output[s].dtypes == 'object' and  s !='Restaurant_id' ]
+        object_columns = [s for s in df_output.columns if df_output[s].dtypes == 'object' and s !='Restaurant_id' ]
         df_output.drop(object_columns, axis=1, inplace=True)
 
         return df_output
@@ -200,6 +200,7 @@ test_data = df_preproc.query('sample == 0').drop(['sample'], axis=1)
 test_data = test_data.drop_duplicates(subset=['Restaurant_id'], keep='first').drop(['Restaurant_id'], axis=1)
 
 
+
 y = train_data.Rating.values
 X = train_data.drop(['Rating'], axis=1)
 
@@ -212,6 +213,9 @@ print('MAE:', metrics.mean_absolute_error(y_test, y_pred))
 
 print(pd.Series(model.feature_importances_, index=X.columns).sort_values(ascending=False))
 
+
+print(test_data.columns)
+exit()
 
 test_data = test_data.drop(['Rating'], axis=1)
 predict_submission = model.predict(test_data)
