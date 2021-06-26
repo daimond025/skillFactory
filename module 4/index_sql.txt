@@ -168,13 +168,64 @@ HAVING count(a.city) >= 2
     LIMIT 1 (Ответ Boeing 737-300)
 
 Финальнае задание  - запрос
-SELECT *
+-- функция подсчета кодичества мест для моделей самолетов
+with  seats_air as (
+
+with  seats_count as (
+select
+    seats.aircraft_code,
+    seats.fare_conditions,
+    count(seats.seat_no) as seat_count
+from dst_project.seats seats
+group by seats.aircraft_code, seats.fare_conditions
+order by seats.fare_conditions desc
+)
+select
+    seats_count.aircraft_code,
+    seats_seed.fare_conditions,  -- бизнес класс
+    seats_seed.seat_count,
+
+    seats_count.fare_conditions,  -- эконом класс
+    seats_count.seat_count
+    --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
+from seats_count as seats_seed
+left join seats_count on  seats_count.aircraft_code = seats_seed.aircraft_code
+where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy'
+)
+SELECT * -- distinct aircraft.aircraft_code
+
 FROM dst_project.flights as f
 LEFT JOIN dst_project.airports AS d ON f.departure_airport = d.airport_code
 LEFT JOIN dst_project.airports AS a ON f.arrival_airport  = a.airport_code
-LEFT JOIN dst_project.aircrafts AS a ON f.aircraft_code = a.aircraft_code
-LEFT JOIN dst_project.seats AS s ON a.aircraft_code = s.aircraft_code
+LEFT JOIN dst_project.aircrafts AS aircraft ON f.aircraft_code = aircraft.aircraft_code
+
+--- количество мест по классам в зависимости от модели
+LEFT JOIN seats_air AS seats_air ON seats_air.aircraft_code = f.aircraft_code
 
 WHERE f.departure_airport = 'AAQ'
   AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
   AND f.status not in ('Cancelled')
+--group by f.flight_id
+
+
+-- запрос на количество мест в моделяхз самолетов
+with  seats_count as (
+select
+    seats.aircraft_code,
+    seats.fare_conditions,
+    count(seats.seat_no) as seat_count
+from dst_project.seats seats
+group by seats.aircraft_code, seats.fare_conditions
+order by seats.fare_conditions desc
+)
+select
+    seats_count.aircraft_code,
+    seats_seed.fare_conditions,  -- бизнес класс
+    seats_seed.seat_count,
+
+    seats_count.fare_conditions,  -- эконом класс
+    seats_count.seat_count
+    --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
+from seats_count as seats_seed
+left join seats_count on  seats_count.aircraft_code = seats_seed.aircraft_code
+where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy' 
