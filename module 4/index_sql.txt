@@ -228,4 +228,36 @@ select
     --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
 from seats_count as seats_seed
 left join seats_count on  seats_count.aircraft_code = seats_seed.aircraft_code
-where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy' 
+where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy'
+
+
+
+-- запрос на количество пасажиров
+with seat_passagirs as (
+select  ticket_flights.flight_id as flight_id ,
+        ticket_flights.fare_conditions as fare_conditions,
+        count (ticket_flights.flight_id) as count_pass,
+        sum(ticket_flights.amount) as summ_pass
+FROM dst_project.ticket_flights as ticket_flights
+
+where ticket_flights.flight_id in (
+    SELECT distinct flights.flight_id
+    FROM dst_project.flights as  flights
+    WHERE departure_airport = 'AAQ'
+        AND (date_trunc('month', scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
+        AND status not in ('Cancelled')
+)
+group by ticket_flights.flight_id, ticket_flights.fare_conditions
+)
+
+select seats_pass.flight_id,
+       seats_pass.fare_conditions as bisiness_condition,
+       seats_pass.count_pass as bisiness_count ,
+       seats_pass.summ_pass as bisiness_summ ,
+
+       seat_passagirs.fare_conditions as econom_condition,
+       seat_passagirs.count_pass as econom_count ,
+       seat_passagirs.summ_pass as econom_summ
+from seat_passagirs as seats_pass
+left join seat_passagirs on  seats_pass.flight_id = seat_passagirs.flight_id
+where seats_pass.fare_conditions = 'Business' and seat_passagirs.fare_conditions = 'Economy'
