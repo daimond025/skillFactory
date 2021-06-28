@@ -167,97 +167,137 @@ HAVING count(a.city) >= 2
     ORDER BY seat_no DESC
     LIMIT 1 (Ответ Boeing 737-300)
 
-Финальнае задание  - запрос
--- функция подсчета кодичества мест для моделей самолетов
-with  seats_air as (
+Финальнае задание  - запрос (Для )
+todo ФИНАЛЬНЫЙ ЗАПРОС
+-- todo данны по пасажирам (бизнес/эконом класс)
+WITH seats_pass AS
+  (WITH seat_passagirs AS
+     (SELECT ticket_flights.flight_id AS flight_id,
+             ticket_flights.fare_conditions AS fare_conditions,
+             COUNT (ticket_flights.flight_id) AS count_pass,
+                   sum(ticket_flights.amount) AS summ_pass
+      FROM dst_project.ticket_flights AS ticket_flights
+      WHERE ticket_flights.flight_id in
+          (SELECT DISTINCT flights.flight_id
+           FROM dst_project.flights AS flights
+           WHERE departure_airport = 'AAQ'
+             AND (date_trunc('month', scheduled_departure) in ('2017-01-01', '2017-02-01', '2017-12-01'))
+             AND status not in ('Cancelled') )
+     GROUP BY ticket_flights.flight_id,
+               ticket_flights.fare_conditions)
+     SELECT seats_pass.flight_id,
+            seats_pass.count_pass AS pass_bisiness_count,
+            seats_pass.summ_pass AS pass_bisiness_summ,
+            seat_passagirs.count_pass AS pass_econom_count,
+            seat_passagirs.summ_pass AS pass_econom_summ,
+            (seats_pass.count_pass + seat_passagirs.count_pass) AS pass_count,
+            (seats_pass.summ_pass + seat_passagirs.summ_pass) AS pass_summ
+     FROM seat_passagirs AS seats_pass
+     LEFT JOIN seat_passagirs
+        ON seats_pass.flight_id = seat_passagirs.flight_id
+     WHERE seats_pass.fare_conditions = 'Business' AND seat_passagirs.fare_conditions = 'Economy'
+     ),
+--  todo таблица с данными по моделям самолетов
+seats_air AS
+  (WITH seats_count AS
+     (SELECT seats.aircraft_code,
+             seats.fare_conditions,
+             count(seats.seat_no) AS seat_count
+      FROM dst_project.seats seats
+      GROUP BY seats.aircraft_code,
+               seats.fare_conditions
+      ORDER BY seats.fare_conditions DESC) SELECT seats_count.aircraft_code,
+                                                  seats_seed.seat_count AS plane_bisiness_count , -- бизнесс класс
+ seats_count.seat_count AS plane_econom_count, -- эконом класс
+ (seats_seed.seat_count + seats_count.seat_count) AS plane_count --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
+FROM seats_count AS seats_seed
+   LEFT JOIN seats_count ON seats_count.aircraft_code = seats_seed.aircraft_code
+   WHERE seats_seed.fare_conditions = 'Business'
+     AND seats_count.fare_conditions = 'Economy' )
+-- todo основной запрос
+SELECT f.flight_id,
+       to_char( f.actual_departure, 'DD-MM-YYYY HH24:MI:SS') as date_departure,  -- вермя отправления
+       extract(epoch
+               FROM (f.actual_arrival - f.actual_departure)) / 60 AS duration_minutes,
+       d.city AS departure_city,
+       d.longitude AS departure_lon, -- для вычисления расстояний
+       d.latitude AS departure_lat,
+       a.city,
+       a.longitude AS arrival_lon, -- для вычисления расстояний
+       a.latitude AS arrival_lat, --параметры самолета
+       aircraft.model AS plane_model,
+       aircraft.range AS plane_range,
+       seats_air.plane_bisiness_count,
+       seats_air.plane_econom_count,
+       seats_air.plane_count, --  параметры продаж
+       seats_pass.pass_bisiness_count,
+       seats_pass.pass_bisiness_summ,
+       seats_pass.pass_econom_count,
+       seats_pass.pass_econom_summ
+    FROM dst_project.flights AS f
+    LEFT JOIN dst_project.airports AS d
+        ON f.departure_airport = d.airport_code
+    LEFT JOIN dst_project.airports AS a
+        ON f.arrival_airport = a.airport_code
+    LEFT JOIN dst_project.aircrafts AS aircraft
+        ON f.aircraft_code = aircraft.aircraft_code
 
-with  seats_count as (
-select
-    seats.aircraft_code,
-    seats.fare_conditions,
-    count(seats.seat_no) as seat_count
-from dst_project.seats seats
-group by seats.aircraft_code, seats.fare_conditions
-order by seats.fare_conditions desc
-)
-select
-    seats_count.aircraft_code,
-    seats_seed.fare_conditions,  -- бизнес класс
-    seats_seed.seat_count,
-
-    seats_count.fare_conditions,  -- эконом класс
-    seats_count.seat_count
-    --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
-from seats_count as seats_seed
-left join seats_count on  seats_count.aircraft_code = seats_seed.aircraft_code
-where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy'
-)
-SELECT * -- distinct aircraft.aircraft_code
-
-FROM dst_project.flights as f
-LEFT JOIN dst_project.airports AS d ON f.departure_airport = d.airport_code
-LEFT JOIN dst_project.airports AS a ON f.arrival_airport  = a.airport_code
-LEFT JOIN dst_project.aircrafts AS aircraft ON f.aircraft_code = aircraft.aircraft_code
-
---- количество мест по классам в зависимости от модели
-LEFT JOIN seats_air AS seats_air ON seats_air.aircraft_code = f.aircraft_code
-
-WHERE f.departure_airport = 'AAQ'
-  AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
-  AND f.status not in ('Cancelled')
---group by f.flight_id
+    --- количество мест по классам в зависимости от модели самолета
+    LEFT JOIN seats_air AS seats_air
+        ON seats_air.aircraft_code = f.aircraft_code
+    -- количество мест в эконом и бизнес классах для пассажиров
+    LEFT JOIN seats_pass AS seats_pass
+        ON seats_pass.flight_id = f.flight_id
+    WHERE f.departure_airport = 'AAQ'
+        AND (date_trunc('month', f.scheduled_departure) in ('2017-01-01','2017-02-01','2017-12-01'))
+        AND f.status not in ('Cancelled')
+    order by date_departure
 
 
--- запрос на количество мест в моделяхз самолетов
-with  seats_count as (
-select
-    seats.aircraft_code,
-    seats.fare_conditions,
-    count(seats.seat_no) as seat_count
-from dst_project.seats seats
-group by seats.aircraft_code, seats.fare_conditions
-order by seats.fare_conditions desc
-)
-select
-    seats_count.aircraft_code,
-    seats_seed.fare_conditions,  -- бизнес класс
-    seats_seed.seat_count,
-
-    seats_count.fare_conditions,  -- эконом класс
-    seats_count.seat_count
-    --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
-from seats_count as seats_seed
-left join seats_count on  seats_count.aircraft_code = seats_seed.aircraft_code
-where seats_seed.fare_conditions = 'Business' and seats_count.fare_conditions = 'Economy'
+-- todo запрос на количество мест в моделяз самолетов
+seats_air AS
+  (WITH seats_count AS
+     (SELECT seats.aircraft_code,
+             seats.fare_conditions,
+             count(seats.seat_no) AS seat_count
+      FROM dst_project.seats seats
+      GROUP BY seats.aircraft_code,
+               seats.fare_conditions
+      ORDER BY seats.fare_conditions DESC) SELECT seats_count.aircraft_code,
+                                                  seats_seed.seat_count AS plane_bisiness_count , -- бизнесс класс
+ seats_count.seat_count AS plane_econom_count, -- эконом класс
+ (seats_seed.seat_count + seats_count.seat_count) AS plane_count --row_number()over (partition by seats_seed.aircraft_code) as aircraft_num - тут попытка самолетов у которых нет бизнесс класс - такие не летают из Анапы
+FROM seats_count AS seats_seed
+   LEFT JOIN seats_count ON seats_count.aircraft_code = seats_seed.aircraft_code
+   WHERE seats_seed.fare_conditions = 'Business'
+     AND seats_count.fare_conditions = 'Economy' )
 
 
-
--- запрос на количество пасажиров
-with seat_passagirs as (
-select  ticket_flights.flight_id as flight_id ,
-        ticket_flights.fare_conditions as fare_conditions,
-        count (ticket_flights.flight_id) as count_pass,
-        sum(ticket_flights.amount) as summ_pass
-FROM dst_project.ticket_flights as ticket_flights
-
-where ticket_flights.flight_id in (
-    SELECT distinct flights.flight_id
-    FROM dst_project.flights as  flights
-    WHERE departure_airport = 'AAQ'
-        AND (date_trunc('month', scheduled_departure) in ('2017-01-01','2017-02-01', '2017-12-01'))
-        AND status not in ('Cancelled')
-)
-group by ticket_flights.flight_id, ticket_flights.fare_conditions
-)
-
-select seats_pass.flight_id,
-       seats_pass.fare_conditions as bisiness_condition,
-       seats_pass.count_pass as bisiness_count ,
-       seats_pass.summ_pass as bisiness_summ ,
-
-       seat_passagirs.fare_conditions as econom_condition,
-       seat_passagirs.count_pass as econom_count ,
-       seat_passagirs.summ_pass as econom_summ
-from seat_passagirs as seats_pass
-left join seat_passagirs on  seats_pass.flight_id = seat_passagirs.flight_id
-where seats_pass.fare_conditions = 'Business' and seat_passagirs.fare_conditions = 'Economy'
+-- todo запрос на количество пасажиров
+WITH seats_pass AS
+  (WITH seat_passagirs AS
+     (SELECT ticket_flights.flight_id AS flight_id,
+             ticket_flights.fare_conditions AS fare_conditions,
+             COUNT (ticket_flights.flight_id) AS count_pass,
+                   sum(ticket_flights.amount) AS summ_pass
+      FROM dst_project.ticket_flights AS ticket_flights
+      WHERE ticket_flights.flight_id in
+          (SELECT DISTINCT flights.flight_id
+           FROM dst_project.flights AS flights
+           WHERE departure_airport = 'AAQ'
+             AND (date_trunc('month', scheduled_departure) in ('2017-01-01',
+                                                               '2017-02-01',
+                                                               '2017-12-01'))
+             AND status not in ('Cancelled') )
+      GROUP BY ticket_flights.flight_id,
+               ticket_flights.fare_conditions) SELECT seats_pass.flight_id,
+                                                      seats_pass.count_pass AS pass_bisiness_count,
+                                                      seats_pass.summ_pass AS pass_bisiness_summ,
+                                                      seat_passagirs.count_pass AS pass_econom_count,
+                                                      seat_passagirs.summ_pass AS pass_econom_summ,
+                                                      (seats_pass.count_pass + seat_passagirs.count_pass) AS pass_count,
+                                                      (seats_pass.summ_pass + seat_passagirs.summ_pass) AS pass_summ
+   FROM seat_passagirs AS seats_pass
+   LEFT JOIN seat_passagirs ON seats_pass.flight_id = seat_passagirs.flight_id
+   WHERE seats_pass.fare_conditions = 'Business'
+     AND seat_passagirs.fare_conditions = 'Economy' )
