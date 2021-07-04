@@ -71,11 +71,6 @@ data = pd.read_csv('data.csv')
 
 df_object = PrepareDate(data)
 df = df_object.processData()
-
-
-
-print(df.shape)
-# seaborn.barplot(x=dff.index, y=dff.values)
 df = df[df['city'] != 'Novokuznetsk'].copy()
 
 
