@@ -53,16 +53,20 @@ SELECT f.flight_id,
        d.latitude AS departure_lat,
        a.city,
        a.longitude AS arrival_lon, -- для вычисления расстояний
-       a.latitude AS arrival_lat, --параметры самолета
+       a.latitude AS arrival_lat,
+        --параметры самолета
        aircraft.model AS plane_model,
        aircraft.range AS plane_range,
        seats_air.plane_bisiness_count,
        seats_air.plane_econom_count,
-       seats_air.plane_count, --  параметры продаж
+       seats_air.plane_count,
+       --  параметры продаж
        seats_pass.pass_bisiness_count,
        seats_pass.pass_bisiness_summ,
        seats_pass.pass_econom_count,
-       seats_pass.pass_econom_summ
+       seats_pass.pass_econom_summ,
+       seats_pass.pass_count,
+       seats_pass.pass_summ
     FROM dst_project.flights AS f
     LEFT JOIN dst_project.airports AS d
         ON f.departure_airport = d.airport_code
