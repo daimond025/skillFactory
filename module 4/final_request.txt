@@ -1,4 +1,5 @@
--- todo данны по пасажирам (бизнес/эконом класс)
+-- todo данны по пасажирам (бизнес/эконом класс) - в данном запросе создается ода таблица и она накладывается саму на себя
+-- для извлечения данных по классам рейсов в одну строку
 WITH seats_pass AS
   (WITH seat_passagirs AS
      (SELECT ticket_flights.flight_id AS flight_id,
@@ -26,7 +27,8 @@ WITH seats_pass AS
         ON seats_pass.flight_id = seat_passagirs.flight_id
      WHERE seats_pass.fare_conditions = 'Business' AND seat_passagirs.fare_conditions = 'Economy'
      ),
---  todo таблица с данными по моделям самолетов
+--  todo таблица с данными по моделям самолетов в данном запросе создается ода таблица и она накладывается саму на себя
+-- для извлечения данных по классам рейсов в одну строку для самолета
 seats_air AS
   (WITH seats_count AS
      (SELECT seats.aircraft_code,

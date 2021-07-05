@@ -41,7 +41,7 @@ class PrepareDate():
 
     #  извлечение разных метрик
     def calculateProfit(self):
-        # общая прибыль = продажа билетов - затраы
+        # общая прибыль = продажа билетов - затраты
         self.df_output['profit'] =  self.df_output['pass_summ'] - self.df_output['Costs']
         #  заполняемость мест в т.ч. бизнес и экном классов
         self.df_output['occupancy'] = self.df_output['pass_count'] / self.df_output['plane_count']
@@ -54,9 +54,13 @@ class PrepareDate():
 
         # как один пассажир влияет на доходность / или на продажу билетов
         self.df_output['deposit_profit'] = (self.df_output['profit'] )/ self.df_output['pass_count']
-        self.df_output['deposit'] = (self.df_output['pass_summ'] )/ self.df_output['pass_count']
         self.df_output['deposit_econom'] = (self.df_output['pass_econom_summ'] )/ self.df_output['pass_econom_count']
         self.df_output['deposit_bisness'] = (self.df_output['pass_bisiness_summ'] )/ self.df_output['pass_bisiness_count']
+
+    # поиск рейсов ниже по прибыли - Белгород ниже чем 0,3 Москва - уставивает по прибыли
+    def findBelowProfit(self):
+        return  self.df_output[self.df_output['profit'] < 350000].copy()
+
 
 
     def processData(self):
@@ -71,8 +75,14 @@ data = pd.read_csv('data.csv')
 
 df_object = PrepareDate(data)
 df = df_object.processData()
-df = df[df['city'] != 'Novokuznetsk'].copy()
 
+#  графики прибыли от запооняемости
+Moscow_city = df[df['city'] == 'Moscow' ].copy()
+seaborn.lineplot(x='occupancy', y='profit', data=Moscow_city)
 
-seaborn.barplot(x="plane_model", y="city", hue="city", data=df)
-# seaborn.barplot(x=df['city'].value_counts().index, y=df['city'].value_counts())
+Belgorod_city = df[df['city'] == 'Belgorod' ].copy()
+seaborn.lineplot(x='occupancy', y='profit', data=Belgorod_city)
+
+low_profit = df[df['profit'] < 300000].copy()
+print(low_profit[['flight_id', 'date_departure', 'city', 'occupancy', 'profit']])
+
