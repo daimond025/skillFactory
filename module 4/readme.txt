@@ -8,3 +8,6 @@
     - data.csv -  сам набор данных из запроса
     - module_4.py - файл обработки данных
     - module 4.ipynb - ноутбук с решением и графиками к презенатации
+    
+Просьба скиньте название книжек - я посмотрю!
+https://docs.google.com/forms/d/e/1FAIpQLScV-_4J0RMEpnTw1PEabGZIfnT5pD0JtzMdPJ2NXgnd2CRihw/viewform
