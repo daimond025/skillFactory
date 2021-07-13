@@ -1,0 +1,2 @@
+визуализацией статистических данных при помощи библиотеки seaborn.
+https://nagornyy.me/courses/data-science/intro-to-seaborn/
