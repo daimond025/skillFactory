@@ -9,27 +9,40 @@ from matplotlib import pyplot as plt
 data = load_boston()
 
 
-# def linreg_linear(X, y):
-#     theta = np.linalg.inv(X.T @ X) @ X.T @ y
-#     return theta
+def linreg_linear(X, y):
+    theta = np.linalg.inv(X.T @ X) @ X.T @ y
+    return theta
 def print_regression_metrics(y_true, y_pred):
     mse = mean_squared_error(y_true, y_pred)
     rmse = np.sqrt(mse)
     print(f'MSE = {mse:.2f}, RMSE = {rmse:.2f}')
-# X, y = data['data'], data['target']
+
+X, y = data['data'], data['target']
+# X_pandas = pd.DataFrame(data.data, columns=data.feature_names)
+# Y_pandas = pd.DataFrame(data['target'], columns=['MEDV'])
+# Z = pd.concat([X_pandas, Y_pandas], axis=1)
+# Z = Z[Z['B'] > 50]
 #
-# X = np.hstack([np.ones(X.shape[0])[:, np.newaxis], X])
-#
-# theta = linreg_linear(X, y)
-#
-# y_pred = X.dot(theta)
+# X = Z.iloc[:, :-1].to_numpy()
+# y = Z.iloc[:, -1].to_numpy()
+X = (X - X.mean(axis=0)) / X.std(axis=0)
+
+X = np.hstack([np.ones(X.shape[0])[:, np.newaxis], X])
+
+
+theta = linreg_linear(X, y)
+y_pred = X.dot(theta)
+print_regression_metrics(y, y_pred)
+exit()
+
 #
 # X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2)
 # theta = linreg_linear(X_train, y_train)
 # y_pred = X_valid.dot(theta)
 # y_train_pred = X_train.dot(theta)
-#
-#
+
+# #
+# X, y = data['data'], data['target']
 # lr = LinearRegression()
 # lr.fit(X,y)
 # y_pred = lr.predict(X)
