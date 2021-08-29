@@ -31,7 +31,7 @@ print(round(MSE))
 # y_happy_pred = [1,3,2,5]
 # MAE = metrics.mean_absolute_error(y_happy, y_happy_pred)
 # MSE  = metrics.mean_squared_error(y_happy, y_happy_pred)
-# R_2 = metrics.r2_score(y_happy, y_happy_pred)
+R_2 = metrics.r2_score(y_happy, y_happy_pred)
 # print(MAE)
 # print(MSE )
 # print(R_2 )
