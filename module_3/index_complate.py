@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import metrics
 
-pd.set_option('display.max_rows', None)
+# pd.set_option('display.max_rows', None)
 
 date = pd.read_csv('main_task.csv')
 date['Number of Reviews'].fillna(date['Number of Reviews'].median(), inplace=True)
