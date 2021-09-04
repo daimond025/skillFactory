@@ -266,7 +266,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random
 # exit()
 
 
-model = LogisticRegression(solver='liblinear', class_weight='balanced', C=3593.813663804626, penalty='l2')
+model = LogisticRegression(solver='liblinear', class_weight='balanced', C=1, penalty='l2')
 model.fit(X_train, y_train)
 probs_ = model.predict(X_test)
 pred_probs = model.predict_proba(X_test)
