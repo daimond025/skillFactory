@@ -18,6 +18,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 
 from sklearn.decomposition import PCA
 import calendar
+
+
 # pd.set_option('display.max_columns', None)
 # pd.set_option("max_rows", None)
 
@@ -35,15 +37,12 @@ def outliersData(data, column):
     count_element_out = data.query('sample == 1')[(data[column] >= column_max) & (data[column] <= column_min)][
         column].count()
 
-
     count_element_out_tmp = data[(data[column] >= column_max) & (data[column] <= column_min)][
         column].count()
 
-    if count_element_out_tmp> 0 :
+    if count_element_out_tmp > 0:
         print(column)
         exit()
-
-
 
     print('Q1 - {} . Q3 - {}. Нижняя граница: {}. Вверхняя граница: {}. Количество элементов за границами: {}'.format(
         round(quantile_1, 2), round(quantile_3, 2), round(column_min, 2), round(column_max, 2), count_element_out
@@ -57,7 +56,6 @@ def outliersData(data, column):
 
     data = data[data[column].between(column_min, column_max)]
     return data
-
 
 
 # Функция замены на самое частое значение
@@ -80,6 +78,7 @@ def Max_min_scalar(data, columns, default='default'):
     ))
     return data
 
+
 # Логарифмирование
 def logNumberValue(data, columns, default='default'):
     for column in columns:
@@ -98,9 +97,10 @@ def logNumberValue(data, columns, default='default'):
         sns.boxplot(x='default', y=data[column], data=data, orient='v', ax=axes[1])
     return data
 
+
 # Полиминальные признаки - для большего понимани расшифруем данные
 def PolimicFeatre(data, num_cols):
-    poly = PolynomialFeatures(3)
+    poly = PolynomialFeatures(5)
     ppl_data = poly.fit_transform(data[num_cols])
     poly_name = poly.get_feature_names()
 
@@ -141,7 +141,7 @@ def PolimicFeatre(data, num_cols):
     data.drop(num_drob, axis=1, inplace=True)
     num_cols = num_select.to_list()
     data.columns = data.columns.str.strip()
-    return  data, num_cols
+    return data, num_cols
 
 
 df_train = pd.read_csv('./data/train.csv')
@@ -166,7 +166,7 @@ num_cols = ['age', 'decline_app_cnt', 'income', 'bki_request_cnt', 'score_bki', 
 
 bin_cols = ['sex', 'car', 'car_type', 'good_work', 'foreign_passport']
 
-cat_cols=['education','home_address','work_address','app_date','sna']
+cat_cols = ['education', 'home_address', 'work_address', 'app_date', 'sna']
 
 target = ['default']
 
@@ -179,7 +179,6 @@ data = logNumberValue(data, num_cols)
 #     data = outliersData(data, col)
 
 
-
 # imp_num = pd.Series(f_classif(data.query('sample == 1')[num_cols], data.query('sample == 1')['default'])[0], index=num_cols)
 # imp_num.sort_values(inplace=True)
 # imp_num.plot(kind='barh')
@@ -187,7 +186,6 @@ data = logNumberValue(data, num_cols)
 # num_cor =data.query('sample == 1')[num_cols + target].corr()['default'].sort_values()
 
 data, num_cols = PolimicFeatre(data, num_cols)
-
 
 # БИНАРНЫЕ ПРИЗНАКИ
 label_encoder = LabelEncoder()
@@ -204,14 +202,12 @@ data['car_type_car'] = data['car_type_car'].round(6)
 
 bin_cols = ['sex', 'car_type_car', 'good_work', 'foreign_passport']
 
-
 # bin_cor = data.query('sample == 1')[bin_cols + target].corr()['default'].sort_values()
 #
 # bin_cat = Series(mutual_info_classif(data.query('sample == 1')[bin_cols +target ], data.query('sample == 1')['default'],
 #                                      discrete_features=True), index=bin_cols)
 # bin_cat.sort_values(inplace=True)
 # bin_cat.plot(kind='barh')
-
 
 
 # Стандартизация числовых переменных
@@ -223,18 +219,66 @@ data = replaceValue(data, ['education'])
 
 # подачи заявки  - примем как категориальный признак (название месяца)
 import calendar
+
 data['app_date'] = pd.to_datetime(data['app_date'])
-data['app_date']  = data['app_date'] .apply(lambda x: calendar.month_name[x.month])
+data['app_date'] = data['app_date'].apply(lambda x: calendar.month_name[x.month])
 
 # get_dummies переменные - удалим старые столбцы
 data = pd.get_dummies(data, columns=cat_cols)
 
+
+def cat_variable_corr(data, col):
+    # Поочередно объединим некторые параметры - редактируя при этом колонки
+    # education_SCH vs education_GRD
+    date_pca = data[['education_SCH', 'education_GRD']]
+    data.drop(['education_SCH', 'education_GRD'], axis=1, inplace=True)
+    pca = PCA(n_components=1)
+    date_pca_ = pca.fit_transform(date_pca).round(6)
+    data['education_SCH_GRD'] = date_pca_
+
+    col = list(set(col) - {'education_SCH', 'education_GRD'})
+    col.append('education_SCH_GRD')
+
+    # home_address_1 vs home_address_2
+    date_pca = data[['home_address_1', 'home_address_2']]
+    data.drop(['home_address_1', 'home_address_2'], axis=1, inplace=True)
+    pca = PCA(n_components=1)
+    date_pca_ = pca.fit_transform(date_pca).round(6)
+    data['home_address_1_2'] = date_pca_
+
+    col = list(set(col) - {'home_address_1', 'home_address_2'})
+    col.append('home_address_1_2')
+
+    # work_address_2 vs work_address_3
+    date_pca = data[['work_address_2', 'work_address_3']]
+    data.drop(['work_address_2', 'work_address_3'], axis=1, inplace=True)
+    pca = PCA(n_components=1)
+    date_pca_ = pca.fit_transform(date_pca).round(6)
+    data['work_address_2_3'] = date_pca_
+
+    col = list(set(col) - {'work_address_2', 'work_address_3'})
+    col.append('work_address_2_3')
+
+    # home_address_1_2 vs work_address_2_3
+    date_pca = data[['home_address_1_2', 'work_address_2_3']]
+    data.drop(['home_address_1_2', 'work_address_2_3'], axis=1, inplace=True)
+    pca = PCA(n_components=1)
+    date_pca_ = pca.fit_transform(date_pca).round(6)
+    data['home_address_1_2_work_address_2_3'] = date_pca_
+
+    col = list(set(col) - {'home_address_1_2', 'work_address_2_3'})
+    col.append('home_address_1_2_work_address_2_3')
+
+    return data , col
+
+
 #  влияние категориальных переменных на целевой признак
 cat_cols = ['education_ACD', 'education_GRD', 'education_PGR', 'education_SCH',
-       'education_UGR', 'home_address_1', 'home_address_2', 'home_address_3',
-       'work_address_1', 'work_address_2', 'work_address_3', 'app_date_April',
-       'app_date_February', 'app_date_January', 'app_date_March', 'sna_1',
-       'sna_2', 'sna_3', 'sna_4']
+            'education_UGR', 'home_address_1', 'home_address_2', 'home_address_3',
+            'work_address_1', 'work_address_2', 'work_address_3', 'app_date_April',
+            'app_date_February', 'app_date_January', 'app_date_March', 'sna_1',
+            'sna_2', 'sna_3', 'sna_4']
+data, cat_cols = cat_variable_corr(data, cat_cols)
 
 # imp_cat = Series(mutual_info_classif(data[cat_cols], data['default'],
 #                                      discrete_features =True), index =cat_cols)
@@ -271,8 +315,8 @@ model.fit(X_train, y_train)
 probs_ = model.predict(X_test)
 pred_probs = model.predict_proba(X_test)
 
-fpr, tpr, threshold = roc_curve(y_test, pred_probs[:,1])
-roc_auc = roc_auc_score(y_test, pred_probs[:,1])
+fpr, tpr, threshold = roc_curve(y_test, pred_probs[:, 1])
+roc_auc = roc_auc_score(y_test, pred_probs[:, 1])
 
 print('accuracy_score:', accuracy_score(y_test, probs_))
 print('precision_score:', precision_score(y_test, probs_))
@@ -284,15 +328,12 @@ print('confusion matrix:', '\n', сf_mtx)
 tn, fp, fn, tp = сf_mtx.ravel()
 print()
 print('Предсказано невозращение кредита клиентом, по факту вернувшим кредит: {} \n\
- или {}% от всех вернувших \n'.format(fp, round((fp/(fp+tn))*100, 2)))
+ или {}% от всех вернувших \n'.format(fp, round((fp / (fp + tn)) * 100, 2)))
 print('Предсказан возврат кредита клиентом, по факту не вернувшим кредит: {} \n\
 или {}% от всех не вернувших\n'.format(fn,
-                                        round((1-recall_score(y_test,probs_))*100, 2)))
+                                       round((1 - recall_score(y_test, probs_)) * 100, 2)))
 print()
 print('roc_auc_score:', roc_auc_score(y_test, pred_probs[:, 1]))
-
-
-
 
 
 
