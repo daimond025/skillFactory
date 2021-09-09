@@ -227,7 +227,7 @@ data['app_date'] = data['app_date'].apply(lambda x: calendar.month_name[x.month]
 # get_dummies переменные - удалим старые столбцы
 data = pd.get_dummies(data, columns=cat_cols)
 
-
+#  функция объединения признаков методом главных компонентов
 def cat_variable_corr(data, col):
     # Поочередно объединим некторые параметры - редактируя при этом колонки
     # education_SCH vs education_GRD
@@ -271,7 +271,6 @@ def cat_variable_corr(data, col):
     col.append('home_address_1_2_work_address_2_3')
 
     return data , col
-
 
 #  влияние категориальных переменных на целевой признак
 cat_cols = ['education_ACD', 'education_GRD', 'education_PGR', 'education_SCH',
