@@ -17,6 +17,7 @@ from sklearn.metrics import auc, roc_auc_score, roc_curve
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 from sklearn.decomposition import PCA
+from sklearn import svm
 import calendar
 
 
@@ -332,8 +333,31 @@ print('Предсказано невозращение кредита клиен
 print('Предсказан возврат кредита клиентом, по факту не вернувшим кредит: {} \n\
 или {}% от всех не вернувших\n'.format(fn,
                                        round((1 - recall_score(y_test, probs_)) * 100, 2)))
-print()
 print('roc_auc_score:', roc_auc_score(y_test, pred_probs[:, 1]))
 
+
+# Метод k-ближайших соседей
+from sklearn.neighbors import KNeighborsClassifier
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train, y_train)
+
+probs_ = model.predict(X_test)
+pred_probs = model.predict_proba(X_test)
+
+print('accuracy_score (k):', accuracy_score(y_test, probs_))
+print('precision_score (k):', precision_score(y_test, probs_))
+print('recall_score (k):', recall_score(y_test, probs_))
+print('f1_score (k):', f1_score(y_test, probs_))
+сf_mtx = confusion_matrix(y_test, probs_)
+print()
+print('confusion matrix (k):', '\n', сf_mtx)
+tn, fp, fn, tp = сf_mtx.ravel()
+print()
+print('Предсказано невозращение кредита клиентом, по факту вернувшим кредит: {} \n\
+ или {}% от всех вернувших (k) \n'.format(fp, round((fp / (fp + tn)) * 100, 2)))
+print('Предсказан возврат кредита клиентом, по факту не вернувшим кредит : {} \n\
+или {}% от всех не вернувших (k)\n'.format(fn,
+                                       round((1 - recall_score(y_test, probs_)) * 100, 2)))
+print('roc_auc_score (SVC):', roc_auc_score(y_test, pred_probs[:, 1]))
 
 

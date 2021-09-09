@@ -1,16 +1,46 @@
 import pandas as pd
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sn
 import matplotlib.mlab as mlab
-
-df = pd.read_csv('framingham.xls')
-df.dropna(axis=0,inplace=True)
-
-
-dff = df[df['TenYearCHD'] == 1].copy()
+from scipy.stats import norm
+from scipy.stats import t
 
 
+
+def confidence_interval_norm(alpha, sigma, n, mean):
+
+    value =-norm.ppf(alpha / 2) * sigma / math.sqrt(n)
+    return mean - value, mean + value
+
+def confidence_interval_t(alpha, s, n, mean):
+    value = -t.ppf(alpha / 2, n - 1) * s / math.sqrt(n)
+    return mean - value, mean + value
+
+p = 0.698
+n = 189
+alpha = 0.1
+print(p +  (-norm.ppf(alpha/2)) * math.sqrt((p* (1-p))/(n)))
+print(p -  -norm.ppf(alpha/2) * math.sqrt((p* (1-p))/(n)))
+print(-norm.ppf(0.1/2))
+# print(confidence_interval_norm(0.01,1150, 250,3540))
+
+# print(confidence_interval_norm(0.1,400,15,2000))
+# print(confidence_interval_t(0.05,400,15,2000))
+# print(confidence_interval_t(0.01,400,15,2000))
+
+
+# alpha = 0.05
+# value = -norm.ppf(alpha/2)
+# value = t.ppf((1 + 0.95)/2, 100-1)
+
+
+# df = pd.read_csv('framingham.xls')
+# df.dropna(axis=0,inplace=True)
+#
+#
+# dff = df[df['TenYearCHD'] == 1].copy()
 
 # print(df['diabetes'].value_counts(normalize = True))
 # print(df['diabetes'].value_counts())
