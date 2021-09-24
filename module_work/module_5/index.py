@@ -87,6 +87,7 @@ print('Лучшее C:', best_model.best_estimator_.get_params()['C'])
 
 
 
+
 # def get_boxplot(date, column):
 #     fig, ax = plt.subplots(figsize=(15, 15))
 #     sns.boxplot(x='default', y=data[col], data=data, orient='v', ax=ax)
