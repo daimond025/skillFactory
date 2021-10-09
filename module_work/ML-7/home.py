@@ -77,7 +77,7 @@ from sklearn.cluster import KMeans
 #                                   int(max(y_pred) + 1))))
 #     plt.scatter(X[:, 0], X[:, 1], color=colors[y_pred])
 
- #TODO GaussianMixture
+ #TODO EM-алгоритм
 # from sklearn.mixture import GaussianMixture
 # em_gm = GaussianMixture(n_components=1,
 #                         max_iter=100,
@@ -102,39 +102,59 @@ from sklearn.cluster import KMeans
 
 
 # TODO GaussianMixture
+# import warnings
+# from sklearn.neighbors import kneighbors_graph
+# from sklearn.cluster import AgglomerativeClustering
+#
+# datasets_params_list = [
+#     (blobs, {'n_clusters': 3, 'n_neighbors': 10}),
+#     (varied, {'n_clusters': 3, 'n_neighbors': 2}),
+#     (aniso, {'n_clusters': 3, 'n_neighbors': 2}),
+#     (noisy_circles, {'n_clusters': 2, 'n_neighbors': 10}),
+#     (noisy_moons, {'n_clusters': 2, 'n_neighbors': 10}),
+#     (no_structure, {'n_clusters': 3, 'n_neighbors': 10})]
+#
+# for i, (X, ac_params) in enumerate(datasets_params_list, start=1):
+#     X = StandardScaler().fit_transform(X)
+#
+#     # строим матрицу смежности
+#     connectivity = kneighbors_graph(X,
+#                                     n_neighbors=ac_params['n_neighbors'],
+#                                     include_self=False)
+#
+#
+#     # делаем матрицу смежности симметричной
+#     connectivity = 0.5 * (connectivity + connectivity.T)
+#
+#     ac = AgglomerativeClustering(n_clusters=ac_params['n_clusters'],
+#                                  linkage='average',
+#                                  connectivity=connectivity)
+#
+#     with warnings.catch_warnings():
+#         warnings.filterwarnings(
+#             "ignore",
+#             message="Error",
+#             category=UserWarning)
+#         ac.fit(X)
+#     y_pred = ac.labels_.astype(np.int)
 
+# TODO DBSCAN
+from sklearn.cluster import DBSCAN
 
-import warnings
-from sklearn.neighbors import kneighbors_graph
-from sklearn.cluster import AgglomerativeClustering
-
+dbscan = DBSCAN(eps=0.5,min_samples=5)
 datasets_params_list = [
-    (blobs, {'n_clusters': 3, 'n_neighbors': 10}),
-    (varied, {'n_clusters': 3, 'n_neighbors': 2}),
-    (aniso, {'n_clusters': 3, 'n_neighbors': 2}),
-    (noisy_circles, {'n_clusters': 2, 'n_neighbors': 10}),
-    (noisy_moons, {'n_clusters': 2, 'n_neighbors': 10}),
-    (no_structure, {'n_clusters': 3, 'n_neighbors': 10})]
+    (blobs, {'eps': 0.3}),
+    (varied, {'eps': 0.18}),
+    (aniso, {'eps': 0.184}),
+    (noisy_circles, {'eps': 0.3}),
+    (noisy_moons, {'eps': 0.3}),
+    (no_structure, {'eps': 0.3})]
 
-for i, (X, ac_params) in enumerate(datasets_params_list, start=1):
+for i, (X, dbscan_params) in enumerate(datasets_params_list, start=1):
     X = StandardScaler().fit_transform(X)
+    dbscan = DBSCAN(eps=dbscan_params['eps'])
 
-    # строим матрицу смежности
-    connectivity = kneighbors_graph(X,
-                                    n_neighbors=ac_params['n_neighbors'],
-                                    include_self=False)
-    # делаем матрицу смежности симметричной
-    connectivity = 0.5 * (connectivity + connectivity.T)
-
-    ac = AgglomerativeClustering(n_clusters=ac_params['n_clusters'],
-                                 linkage='average',
-                                 connectivity=connectivity)
-
-    with warnings.catch_warnings():
-        warnings.filterwarnings(
-            "ignore",
-            message="Error",
-            category=UserWarning)
-        ac.fit(X)
-    y_pred = ac.labels_.astype(np.int)
+    dbscan.fit(X)
+    y_pred = dbscan.labels_.astype(np.int)
+    print(y_pred)
 
