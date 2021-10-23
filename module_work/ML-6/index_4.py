@@ -23,38 +23,33 @@ dataset = load_digits()
 X, y = dataset['data'], dataset['target']
 
 
-dataset = load_digits()
-X, y = dataset['data'], dataset['target']
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.2)
 
 
-# def compute_meta_feature(clf, X_train, X_test, y_train, cv):
-#     n_classes = len(np.unique(y_train))
-#     X_meta_train = np.zeros((len(y_train), n_classes), dtype=np.float32)
-#
-#     splits = cv.split(X_train)
-#     for train_fold_index, predict_fold_index in splits:
-#         X_fold_train, X_fold_predict = X_train[train_fold_index], X_train[predict_fold_index]
-#         y_fold_train = y_train[train_fold_index]
-#
-#         folded_clf = clone(clf)
-#         folded_clf.fit(X_fold_train, y_fold_train)
-#
-#         X_meta_train[predict_fold_index] = folded_clf.predict_proba(X_fold_predict)
-#
-#     meta_clf = clone(clf)
-#     meta_clf.fit(X_train, y_train)
-#
-#     X_meta_test = meta_clf.predict_proba(X_test)
-#
-#     return X_meta_train, X_meta_test
+def compute_meta_feature(clf, X_train, X_test, y_train, cv):
+    n_classes = len(np.unique(y_train))
+    X_meta_train = np.zeros((len(y_train), n_classes), dtype=np.float32)
 
+    splits = cv.split(X_train, y_train)
+
+    for train_fold_index, predict_fold_index in splits:
+        X_fold_train, X_fold_predict = X_train[train_fold_index], X_train[predict_fold_index]
+        y_fold_train = y_train[train_fold_index]
+
+        folded_clf = clone(clf)
+        folded_clf.fit(X_fold_train, y_fold_train)
+        X_meta_train[predict_fold_index] = folded_clf.predict_proba(X_fold_predict)
+
+    meta_clf = clone(clf)
+    meta_clf.fit(X_train, y_train)
+
+    X_meta_test = meta_clf.predict_proba(X_test)
+
+    return X_meta_train, X_meta_test
 
 def generate_meta_features(classifiers, X_train, X_test, y_train, cv):
     features = [
-        compute_meta_feature(clf, X_train, X_test, y_train, cv)
-        for clf in tqdm(classifiers)
+        compute_meta_feature(clf, X_train, X_test, y_train, cv) for clf in tqdm(classifiers)
     ]
     stacked_features_train = np.hstack([
         features_train for features_train, features_test in features
@@ -65,8 +60,6 @@ def generate_meta_features(classifiers, X_train, X_test, y_train, cv):
     ])
 
     return stacked_features_train, stacked_features_test
-
-
 
 cv = KFold(n_splits=10, shuffle=True, random_state=42)
 
@@ -84,7 +77,7 @@ def compute_metric(clf, X_train=X_train, y_train=y_train, X_test=X_test):
 # ], X_train, X_test, y_train, cv)
 #
 # clf = LogisticRegression(penalty='none', solver='lbfgs', multi_class='auto', random_state=42)
-# a =  compute_metric(clf, X_train=stacked_features_train, y_train=y_train, X_test=stacked_features_test)
+# a = compute_metric(clf, X_train=stacked_features_train, y_train=y_train, X_test=stacked_features_test)
 
 # TODO 2
 # stacked_features_train, stacked_features_test = generate_meta_features([
@@ -117,28 +110,6 @@ def compute_metric(clf, X_train=X_train, y_train=y_train, X_test=X_test):
 # z = compute_metric(clf, X_train=stacked_features_train, y_train=y_train, X_test=stacked_features_test)
 
 
-def compute_meta_feature(clf, X_train, X_test, y_train, cv):
-    n_classes = len(np.unique(y_train))
-    X_meta_train = np.zeros((len(y_train), n_classes), dtype=np.float32)
-
-    splits = cv.split(X_train, y_train)
-    for train_fold_index, predict_fold_index in splits:
-        X_fold_train, X_fold_predict = X_train[train_fold_index], X_train[predict_fold_index]
-        y_fold_train = y_train[train_fold_index]
-
-        folded_clf = clone(clf)
-        folded_clf.fit(X_fold_train, y_fold_train)
-
-        X_meta_train[predict_fold_index] = folded_clf.predict_proba(X_fold_predict)
-
-    meta_clf = clone(clf)
-    meta_clf.fit(X_train, y_train)
-
-    X_meta_test = meta_clf.predict_proba(X_test)
-
-    return X_meta_train, X_meta_test
-
-
 cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
 stacked_features_train, stacked_features_test = generate_meta_features([
@@ -151,8 +122,8 @@ stacked_features_train, stacked_features_test = generate_meta_features([
 # clf = LogisticRegression(penalty='none', solver='lbfgs', multi_class='auto', random_state=42)
 # clf = RandomForestClassifier(random_state=42)
 # clf = KNeighborsClassifier()
-clf = AdaBoostClassifier(lea)
-clf =  ExtraTreesClassifier(n_estimators=100,  n_jobs=-1, random_state=42)
-z = compute_metric(clf, X_train=stacked_features_train, y_train=y_train, X_test=stacked_features_test)
-print(z)
+# clf = AdaBoostClassifier(lea)
+# clf = ExtraTreesClassifier(n_estimators=100,  n_jobs=-1, random_state=42)
+# z = compute_metric(clf, X_train=stacked_features_train, y_train=y_train, X_test=stacked_features_test)
+# print(z)
 

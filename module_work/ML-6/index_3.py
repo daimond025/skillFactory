@@ -18,7 +18,6 @@ features = list(range(0, 54))
 target = 54
 df = df[(df[target] == 1) | (df[target] == 2)]
 
-
 def compute_meta_feature(clf, X_train, X_test, y_train, cv):
     X_meta_train = np.zeros_like(y_train, dtype=np.float32)
     for train_fold_index, predict_fold_index in cv.split(X_train):
@@ -30,7 +29,6 @@ def compute_meta_feature(clf, X_train, X_test, y_train, cv):
 
         X_meta_train[predict_fold_index] = folded_clf.predict_proba(X_fold_predict)[:, 1]
 
-
     meta_clf = clone(clf)
     meta_clf.fit(X_train, y_train)
 
@@ -41,7 +39,7 @@ def compute_meta_feature(clf, X_train, X_test, y_train, cv):
 
 def generate_meta_features(classifiers, X_train, X_test, y_train, cv):
     features = [
-        compute_meta_feature(clf, X_train, X_test, y_train, cv) for clf in tqdm(classifiers)
+        compute_meta_feature(clf, X_train, X_test, y_train, cv) for clf in (classifiers)
     ]
 
     stacked_features_train = np.vstack([
@@ -57,6 +55,7 @@ def generate_meta_features(classifiers, X_train, X_test, y_train, cv):
 
 
 cover_train, cover_test = train_test_split(df, test_size=0.5)
+
 
 cover_X_train, cover_y_train = cover_train[features], cover_train[target]
 cover_X_test, cover_y_test = cover_test[features], cover_test[target]
@@ -77,6 +76,12 @@ stacked_features_train, stacked_features_test = generate_meta_features([
     RandomForestClassifier(n_estimators=300, n_jobs=-1),
     GradientBoostingClassifier(n_estimators=300)
 ], cover_X_train, cover_X_test, cover_y_train.values, cv)
+
+print(cover_X_train.shape)
+print(cover_X_test.shape)
+print(stacked_features_train)
+print(stacked_features_test)
+exit()
 
 
 total_features_train = np.hstack([cover_X_train, stacked_features_train])
