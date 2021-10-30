@@ -22,14 +22,14 @@ def replaceValue(data, columns):
         data[column] = data[column].apply(lambda x: max_ if pd.isnull(x) else ( max_ if (x == 'nan' or x.strip() == '')  else x  ))
     return data
 
-data = pd.read_csv("./data/train.csv", encoding = 'ISO-8859-1', low_memory = False)
+data = pd.read_csv("./input/train.csv", encoding = 'ISO-8859-1', low_memory = False)
 #  зачена на п
 data = replaceValue(data, ['education'])
 
 
 # for i in ['age', 'decline_app_cnt', 'bki_request_cnt', 'income']:
 #     plt.figure()
-#     sns.distplot(data[i][data[i] > 0].dropna(), kde = False, rug=False)
+#     sns.distplot(input[i][input[i] > 0].dropna(), kde = False, rug=False)
 #     plt.title(i)
 #     plt.show()
 
@@ -43,7 +43,7 @@ data = logNumberValue(data, num_cols)
 
 
 
-# imp_num = pd.Series(f_classif(data[num_cols], data['default'])[0], index = num_cols)
+# imp_num = pd.Series(f_classif(input[num_cols], input['default'])[0], index = num_cols)
 # imp_num.sort_values(inplace = True)
 # imp_num.plot(kind = 'barh')
 
@@ -54,7 +54,7 @@ label_encoder = LabelEncoder()
 for column in bin_cols:
     data[column] = label_encoder.fit_transform(data[column])
 
-# imp_cat = Series(mutual_info_classif(data[bin_cols + cat_cols], data['default'],
+# imp_cat = Series(mutual_info_classif(input[bin_cols + cat_cols], input['default'],
 #                                      discrete_features =True), index = bin_cols + cat_cols)
 # imp_cat.sort_values(inplace = True)
 # imp_cat.plot(kind = 'barh')
@@ -90,10 +90,10 @@ print('Лучшее C:', best_model.best_estimator_.get_params()['C'])
 
 # def get_boxplot(date, column):
 #     fig, ax = plt.subplots(figsize=(15, 15))
-#     sns.boxplot(x='default', y=data[col], data=data, orient='v', ax=ax)
+#     sns.boxplot(x='default', y=input[col], input=input, orient='v', ax=ax)
 #     plt.xticks(rotation=45)
 #     ax.set_title('Boxplot for ' + column)
 #     plt.show()
 #
 # for col in num_cols:
-#     get_boxplot(data, col)
+#     get_boxplot(input, col)

@@ -51,9 +51,9 @@ def outliersData(data, column):
 
     # fig, axes = plt.subplots(1, 2, figsize=(15, 5))
     # axes[0].set_title(' Распределение параметра ' + column)
-    # sns.distplot(data[column], ax=axes[0])
+    # sns.distplot(input[column], ax=axes[0])
     # axes[1].set_title(' Параметр ' + column + ' от целевой переменной')
-    # sns.boxplot(x='default', y=data[column], data=data, orient='v', ax=axes[1])
+    # sns.boxplot(x='default', y=input[column], input=input, orient='v', ax=axes[1])
 
     data = data[data[column].between(column_min, column_max)]
     return data
@@ -155,12 +155,12 @@ df_test['default'] = 0
 
 data = df_test.append(df_train, sort=False).reset_index(drop=True)
 
-# data.info()
+# input.info()
 #
-# data.isna().sum()
+# input.isna().sum()
 
-# data.query('sample == 1')['default'].value_counts().plot.barh()
-# data.query('sample == 1')['default'].value_counts()
+# input.query('sample == 1')['default'].value_counts().plot.barh()
+# input.query('sample == 1')['default'].value_counts()
 
 
 num_cols = ['age', 'decline_app_cnt', 'income', 'bki_request_cnt', 'score_bki', 'region_rating', 'first_time']
@@ -177,14 +177,14 @@ data = Max_min_scalar(data, 'score_bki')
 data = logNumberValue(data, num_cols)
 
 # for col in num_cols:
-#     data = outliersData(data, col)
+#     input = outliersData(input, col)
 
 
-# imp_num = pd.Series(f_classif(data.query('sample == 1')[num_cols], data.query('sample == 1')['default'])[0], index=num_cols)
+# imp_num = pd.Series(f_classif(input.query('sample == 1')[num_cols], input.query('sample == 1')['default'])[0], index=num_cols)
 # imp_num.sort_values(inplace=True)
 # imp_num.plot(kind='barh')
 
-# num_cor =data.query('sample == 1')[num_cols + target].corr()['default'].sort_values()
+# num_cor =input.query('sample == 1')[num_cols + target].corr()['default'].sort_values()
 
 data, num_cols = PolimicFeatre(data, num_cols)
 
@@ -203,9 +203,9 @@ data['car_type_car'] = data['car_type_car'].round(6)
 
 bin_cols = ['sex', 'car_type_car', 'good_work', 'foreign_passport']
 
-# bin_cor = data.query('sample == 1')[bin_cols + target].corr()['default'].sort_values()
+# bin_cor = input.query('sample == 1')[bin_cols + target].corr()['default'].sort_values()
 #
-# bin_cat = Series(mutual_info_classif(data.query('sample == 1')[bin_cols +target ], data.query('sample == 1')['default'],
+# bin_cat = Series(mutual_info_classif(input.query('sample == 1')[bin_cols +target ], input.query('sample == 1')['default'],
 #                                      discrete_features=True), index=bin_cols)
 # bin_cat.sort_values(inplace=True)
 # bin_cat.plot(kind='barh')
@@ -280,7 +280,7 @@ cat_cols = ['education_ACD', 'education_GRD', 'education_PGR', 'education_SCH',
             'sna_2', 'sna_3', 'sna_4']
 data, cat_cols = cat_variable_corr(data, cat_cols)
 
-# imp_cat = Series(mutual_info_classif(data[cat_cols], data['default'],
+# imp_cat = Series(mutual_info_classif(input[cat_cols], input['default'],
 #                                      discrete_features =True), index =cat_cols)
 # imp_cat.sort_values(inplace = True)
 # imp_cat.plot(kind = 'barh')
