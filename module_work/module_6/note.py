@@ -85,3 +85,6 @@ url_cars = [
    'https://auto.ru/cars/volkswagen/all/?page=',  # volkswagen
    'https://auto.ru/cars/gaz/all/?page=',  # gaz
 ]
+
+# TODO EXAMPLE
+# https://www.kaggle.com/juliagil/sf-dst-car-price-prediction-dspr-28-team#-3.-EDA-AND-BASIC-DATA-CLEANING
