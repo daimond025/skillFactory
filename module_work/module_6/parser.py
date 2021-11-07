@@ -27,40 +27,8 @@ class Parser:
         #  для избежание повтора  машин
         self.url_cars = []
 
-        # массив для всех типов машин
-        self.model_cars = [
-            'https://auto.ru/cars/all/?page=',  # ALL
-            # 'https://auto.ru/cars/vaz/all/?page=',  # BAZ
-            'https://auto.ru/cars/audi/all/?page=',  # audi
-            'https://auto.ru/cars/bmw/all/?page=',  # bmw
-            'https://auto.ru/cars/chery/all/?page=',  # chery
-            'https://auto.ru/cars/chevrolet/all/?page=',  # chevrolet
-            'https://auto.ru/cars/citroen/all/?page=',  # citroen
-            'https://auto.ru/cars/daewoo/all/?page=',  # daewoo
-            'https://auto.ru/cars/ford/all/?page=',  # ford
-            'https://auto.ru/cars/geely/all/?page=',  # geely
-            'https://auto.ru/cars/honda/all/?page=',  # honda
-            'https://auto.ru/cars/hyundai/all/?page=',  # hyundai
-            'https://auto.ru/cars/infiniti/all/?page=',  # infiniti
-            'https://auto.ru/cars/kia/all/?page=',  # kia
-            'https://auto.ru/cars/land_rover/all/?page=',  # land_rover
-            'https://auto.ru/cars/lexus/all/?page=',  # lexus
-            'https://auto.ru/cars/mazda/all/?page=',  # mazda
-            'https://auto.ru/cars/mercedes/all/?page=',  # mercedes
-            'https://auto.ru/cars/mitsubishi/all/?page=',  # mitsubishi
-            'https://auto.ru/cars/nissan/all/?page=',  # nissan
-            'https://auto.ru/cars/opel/all/?page=',  # opel
-            'https://auto.ru/cars/peugeot/all/?page=',  # peugeot
-            'https://auto.ru/cars/porsche/all/?page=',  # porsche
-            'https://auto.ru/cars/renault/all/?page=',  # renault
-            'https://auto.ru/cars/skoda/all/?page=',  # skoda
-            'https://auto.ru/cars/subaru/all/?page=',  # subaru
-            'https://auto.ru/cars/suzuki/all/?page=',  # suzuki
-            'https://auto.ru/cars/toyota/all/?page=',  # toyota
-            'https://auto.ru/cars/volkswagen/all/?page=',  # volkswagen
-            'https://auto.ru/cars/gaz/all/?page=',  # gaz
-            'https://auto.ru/cars/mini/all/?page=',  # mini
-        ]
+        # массив для url
+        self.model_cars =  'https://auto.ru/cars/all/?page='
 
         if not os.path.exists(path_file):
             file = codecs.open('./data/Base.csv', 'w+', encoding="utf-8")
@@ -79,17 +47,18 @@ class Parser:
             self.file = file
         else:
             data = pd.read_csv('./data/Base.csv',  lineterminator='\n')
-            self.url_cars = data['url'].tolist()
+            self.url_cars = data['car_url'].tolist()
 
             file = codecs.open('./data/Base.csv', 'a+', encoding="utf-8")
             self.file = file
 
     def input_parser(self):
-        for car_model in self.model_cars:
-            self.getCarModelePage(car_model)
+        for i in range(1, 10000):
+            self.getCarModelePage(self.model_cars)
+            time.sleep(500)
 
     #  функция получения списка станиц по типу машин
-    def getCarModelePage(self,car_model ):
+    def getCarModelePage(self,car_model):
         try:
             for i in range(1, 100):
                 print('Mодель ' + car_model + ' СТРАНИЦА ' + str(i))
@@ -118,12 +87,14 @@ class Parser:
             if url is not None and url['href'] != "" and url['href'] not in self.url_cars:
                 car_params = self.getCar(url['href'])
 
-                car_params = [str(item) for item in car_params]
-                col = ','.join(car_params)
-                col = col + u"\n"
-                self.file.write(col)
-                self.url_cars.append(url['href'])
-                time.sleep(2)
+                if len(car_params) > 0:
+
+                    car_params = [str(item) for item in car_params]
+                    col = ','.join(car_params)
+                    col = col + u"\n"
+                    self.file.write(col)
+                    self.url_cars.append(url['href'])
+                    time.sleep(2)
 
     def get_proxies(self, url):
         url = 'https://free-proxy-list.net/'
@@ -156,7 +127,7 @@ class Parser:
     # парсинг отдельной машины - собирание данных
     def getCar(self, url):
         # TODO TMP
-        # url = 'https://auto.ru/cars/used/sale/porsche/cayenne/1105203367-29286485/'
+        # url = 'https://auto.ru/cars/used/sale/bmw/i3/1105789432-407edd67/'
         print(url)
         # # url = 'https://auto.ru/cars/new/group/hyundai/creta/22913412/22952785/1105604503-694cc2dc/'
 
@@ -242,7 +213,7 @@ class Parser:
                 if description_elem is not None:
                     description_elem_span = description_elem.find_all('span')
                     for item in description_elem_span:
-                        item_corect = ' ' + item.text.replace("<br>", "").replace(",", " ")
+                        item_corect = ' ' + item.text.replace("<br>", "").replace(",", " ").replace('\n', " ")
                         description += item_corect
             description = self.delcommaSTR(description)
 
@@ -371,13 +342,18 @@ class Parser:
             if modelDate_elem:
                 modelDate = str(self.getmodeleDate(modelDate_elem))
 
-            # name - Л С
-            name = ''
-            vehicle = ''
-            vehicleVol = ''
+            name = ''  # Л С
+            vehicle = '' # Коробка
+            vehicleVol = '' # объем двига
             name_elem_main = soup_detail.find('div', class_='catalog__details-main')
             name_elem_main_dd = name_elem_main.find_all('dd')
-            if len(name_elem_main_dd) > 6:
+            if len(name_elem_main_dd) == 9:
+                name = name_elem_main_dd[2].text
+                vehicle = name_elem_main_dd[3].text
+
+                vehicleVol = name_elem_main_dd[0].text
+                vehicleVol = (vehicleVol.replace("л", "").replace(" ", "").replace(".0", ""))
+            elif len(name_elem_main_dd) > 6:
                 name = name_elem_main_dd[1].text
                 vehicle = name_elem_main_dd[2].text
 
@@ -390,6 +366,7 @@ class Parser:
             name = self.delcommaSTR(name)
             vehicle = self.delcommaSTR(vehicle)
             vehicleVol = self.delcommaSTR(vehicleVol)
+
 
             # numberOfDoors - кол-во дверей
             numberOfDoors = 0
@@ -444,18 +421,20 @@ class Parser:
 
             # кВт
             power_kvt = ''
-            if len(name_elem_main) == 6:
-                general_energy = name_elem_main[5]
-                general_div_energy = general_energy.find_all('div', class_='catalog__details-group')
-                if len(general_div_energy) >= 2:
-                    power_kvt_elem = general_div_energy[1].find_all('dd')
-                    if (len(power_kvt_elem)) >= 4:
-                        power_kvt_txt = power_kvt_elem[4].text.lower()
-                        power_kvt_arr = power_kvt_txt.split('при')
+            power_kvt_txt = soup_detail.find('dt', text='Максимальная мощность, л.с./кВт при об/мин')
+            if power_kvt_txt is not None:
+                power_kvt_txt_parent = power_kvt_txt.parent
+                power_kvt_elem_arr = power_kvt_txt_parent.find_all('dd')
+
+                for item_elem in power_kvt_elem_arr:
+                    item_elem_txt = item_elem.text.lower()
+                    if '/' in item_elem_txt and 'при' in item_elem_txt:
+                        power_kvt_arr = item_elem_txt.split('при')
                         if len(power_kvt_arr) == 2 and ('/' in power_kvt_arr[0]):
                             power_kvt_arr = power_kvt_arr[0].split('/')
                             if len(power_kvt_arr) == 2:
                                 power_kvt = power_kvt_arr[1]
+                        break
             power_kvt = self.delcommaSTR(power_kvt)
 
 
@@ -472,16 +451,19 @@ class Parser:
                         privod,
                         rule, status, own_count, ptc, customs, owner, price, start_date, hidden, model,
                         racing, fuel_rate, power_kvt, car_class]
+
+            row_list = [str(item).replace('\n', '').replace('\r', '').strip() for item in row_list]
             return row_list
         except Exception:
             print("An exception occurred")
             print(Exception)
             time.sleep(50)
-            return self.getCar(url)
+            # return self.getCar(url)
+            return []
 
     # удалание зарятых из строки
     def delcommaSTR(self, str_ = ''):
-        return str(str_).title().replace(",", ".").strip()
+        return str(str_).title().replace(",", ".").replace('\n', " ").strip()
 
     def getPublishAt(self,str=''):
         mounth = {

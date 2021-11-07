@@ -1,0 +1,40 @@
+Категориальные
+    brand
+    bodyType
+    model
+    color
+    fuelType
+    vehicleTransmission
+    drivertrain
+    vendor
+cat_cols = ['brand', 'bodyType', 'model', 'color', 'fuelType',
+            'vehicleTransmission', 'drivertrain', 'vendor']
+Читловые
+    modelDate
+    productionDate
+    production_model
+    enginePower
+    engineDisplacement
+    car_age
+    mileage
+num_cols = ['modelDate', 'productionDate',  'production_model', 'enginePower', 'engineDisplacement', 'car_age', 'mileage', 'racing', 'descrip_lenth', 'mileage_year']
+bin_cols = ['car_new', 'driverSide', 'pts']
+
+cat_cols = ['brand', 'bodyType', 'color', 'fuelType', 'vehicleTransmission', 'drivertrain', 'vendor', 'ownersCount',
+         'numberOfDoors', 'vehicleTransmission']
+
+
+Бираные
+    car_new
+    driverSide
+
+# категориальные переменные
+cat_cols = ['bodyType', 'brand', 'color', 'fuelType', 'drivetrain',
+            'model', 'vendor', 'vehicleTransmission', 'numberOfDoors', 'ownersCount']
+
+
+
+num_cols = ['modelDate', 'productionDate',
+            'enginePower', 'mileage', 'engineDisplacement']
+
+bin_cols = ['car_new', ]
