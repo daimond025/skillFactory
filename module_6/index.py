@@ -13,6 +13,7 @@ import xgboost as xgb
 import json
 from pycbrf.toolbox import ExchangeRates, Banks
 import lazypredict
+from lightgbm import LGBMRegressor
 
 from lazypredict.Supervised import LazyRegressor
 # from pandas_profiling import ProfileReport
@@ -38,6 +39,10 @@ sns.set()
 UNKNOWN_VAL = -1
 # Неизвестные строка
 UNKNOWN_STR = 'UNKNOWN'
+
+# Состояние  значение по умолчанию
+repair_state_no = 'repair_no'
+repair_state_yes = 'repair_yes'
 
 
 def mape(y_true, y_pred):
@@ -214,6 +219,14 @@ def getSellIdModel_fromURL(data):
     """
     if ('car_url' in data.columns) and ('model' not in data.columns):
         data['model'] = str(data['car_url'].str.split('/').str.get(7).str.strip()).lower()
+
+        dict = {
+            r'\n[0-9]*': ''
+
+        }
+        data['model'].replace(regex=dict, inplace=True)
+        # data['model'] = re.sub(r'\n[0-9]', '', data['model'] )
+
     elif 'model' not in data.columns:
         data['model'] = UNKNOWN_STR
 
@@ -265,6 +278,33 @@ def replaceBodyType(data_1, data_2=None, col=''):
     data_1[col].replace(regex=dic, inplace=True)
     if data_2 is not None:
         data_2[col].replace(regex=dic, inplace=True)
+    if data_2 is None:
+        return data_1
+    else:
+        return data_1, data_2
+
+
+def trainDefineState(data_1, data_2=None, col=''):
+    """
+     Переопределение параметров состояния постави по умолдчанию не требует ремонта
+    :param col:
+    :return:
+    """
+
+    data_1[col].fillna(repair_state_no, inplace=True)
+    if data_2 is not None:
+        data_1[col].fillna(repair_state_no, inplace=True)
+
+    replace_item = {
+        'не требует ремонта': repair_state_no,
+        'битый / не на ходу': repair_state_yes,
+    }
+
+    # data_1[col].replace(to_replace=replace_item, inplace=True)
+    data_1 = data_1.replace({col: replace_item})
+
+    if data_2 is not None:
+        data_2 = data_2.replace({col: replace_item})
     if data_2 is None:
         return data_1
     else:
@@ -397,8 +437,18 @@ def trainOnwerCounts(data_1=None, data_2=None, col=''):
 
 
 def preColumnToInt(data_1, data_2=None, col=''):
+    """
+     Функция преобразования к числу + проверка
+    :param data_1:
+    :param data_2:
+    :param col:
+    :return:
+    """
+    # data_1 = data_1[data_1[col].apply(lambda x: str(x).isdigit())]
     data_1[col] = data_1[col].astype(int)
+
     if data_2 is not None:
+        # data_2 = data_2[data_2[col].apply(lambda x: str(x).isdigit())]
         data_2[col] = data_2[col].astype(int)
 
     if data_2 is None:
@@ -464,7 +514,7 @@ vendor_dic['EUROPEAN'] = ['PORSCHE', 'LANDROVER', 'JAGUAR',
                           'MINI', 'RENAULT', 'OPEL', 'PEUGEOT', 'CITROEN', 'LAND ROVER', 'ROLLS-ROYCE', 'VOLKSWAGEN',
                           'MERCEDES-BENZ', 'BMW', 'FERRARI', 'AUDI', 'LAMBORGHINI', 'VOLVO', 'SKODA', 'FIAT', 'BENTLEY',
                           'VORTEX', 'MASERATI', 'SMART', 'MATRA', 'ALFAROMEO', 'SEAT', 'TATRA', 'DACIA', 'MAYBACH',
-                          'MERCEDES', 'ROVER', 'SAAB', 'EXEED', 'BUGATTI']
+                          'MERCEDES', 'ROVER', 'SAAB', 'EXEED', 'BUGATTI', 'ASTONMARTIN', 'LANCIA']
 vendor_dic['RUSSIAN'] = ['LADA(ВАЗ)', 'УАЗ', 'ГАЗ', 'ЗАЗ', 'ИЖ', 'МОСКВИЧ', 'ТАГАЗ', 'DONINVEST', 'DERWAYS']
 vendor_dic['ARABIC'] = ['IRANKHODRO']
 vendor_dic['JAPANESE'] = ['SUBARU', 'MAZDA', 'SUZUKI', 'LEXUS', 'TOYOTA', 'NISSAN', 'INFINITI', 'MITSUBISHI', 'HONDA',
@@ -473,7 +523,7 @@ vendor_dic['AMERICAN'] = ['CHEVROLET', 'CHRYSLER', 'CADILLAC', 'JEEP', 'FORD', '
                           'LINCOLN', 'SATURN', 'BUICK', 'TESLA', 'MERCURY', 'GMC']
 vendor_dic['ASIAN'] = ['HYUNDAI', 'DAEWOO', 'KIA', 'CHERY', 'SSANG YONG', 'GEELY', 'GREATWALL', 'LIFAN', 'SSANGYONG',
                        'FAW', 'GENESIS', 'HAVAL', 'DONGFENG', 'JAC', 'RAVON', 'CHANGAN', 'BYD', 'ZX', 'HAIMA', 'DADI',
-                       'BRILLIANCE']
+                       'BRILLIANCE', 'LUXGEN', 'ZOTYE']
 
 
 def defineVendorRow(row, params, some):
@@ -645,6 +695,15 @@ def normolizeTrainsData(train, train_new):
     train_new['pts'].fillna('ORIGINAL', inplace=True)
     columnc.append('pts')
 
+    #  state - Состояние
+    train.rename({'Состояние': 'state'}, axis=1, inplace=True)
+    train_new.rename({'Состояние': 'state'}, axis=1, inplace=True)
+    train['state'].fillna(repair_state_no, inplace=True)
+    train_new['state'].fillna(repair_state_no, inplace=True)
+    train, train_new = Column_lower_strip(train, train_new, 'state')
+    train, train_new = trainDefineState(train, train_new, 'state')
+    columnc.append('state')
+
     # customs  (Таможня) -  Таможня
     train.rename({'Таможня': 'customs'}, axis=1, inplace=True)
     train_new.rename({'Таможня': 'customs'}, axis=1, inplace=True)
@@ -671,12 +730,21 @@ def normolizeTrainsData(train, train_new):
 
     # price_usd - цена в долларах
     # train, train_new = defineUSDCourese(train, train_new)
+    train['price_log'] = np.log(train['price'])
+    train_new['price_log'] = np.log(train_new['price'])
     columnc.append('price')
+    columnc.append('price_log')
     # columnc.append('price_usd')
     # columnc.append('usd')
 
+    # sell_id
+    train['sell_id'] = 0
+    train_new['sell_id'] = 0
+    columnc.append('sell_id')
+
     train = train[columnc]
     train_new = train_new[columnc]
+
     bigdata = train.append(train_new, ignore_index=True)
     return bigdata
 
@@ -743,6 +811,7 @@ def normolizeTestData(test):
 
     # drivertrain (Привод) - удалим отсуствующие значения
     # test.rename({'Привод': 'drivertrain'}, axis=1, inplace=True)
+    test['drivertrain'] = test['Привод']
     columnc.append('drivertrain')
 
     # driverSide (Руль) - удалим отсуствующие значения
@@ -765,6 +834,12 @@ def normolizeTestData(test):
     test['pts'].fillna('ORIGINAL', inplace=True)
     columnc.append('pts')
 
+    # state - Состояние
+    test.rename({'Состояние': 'state'}, axis=1, inplace=True)
+    test = Column_lower_strip(test, None, 'state')
+    test = trainDefineState(test, None, 'state')
+    columnc.append('state')
+
     # customs  (Таможня) -  Таможня
     test.rename({'Таможня': 'customs'}, axis=1, inplace=True)
     test = Column_lower_strip(test, None, 'customs')
@@ -779,6 +854,7 @@ def normolizeTestData(test):
     # model - модель авто
     test = Column_lower_strip(test, None, 'model_name')
     test['model'] = test['model_name']
+    test = Column_lower_strip(test, None, 'model')
     columnc.append('model')
 
     # vendor - Страна
@@ -792,10 +868,15 @@ def normolizeTestData(test):
     # price_usd - цена в долларах
     # train, train_new = defineUSDCourese(train, train_new)
     test['price'] = 0
+    test['price_log'] = 0
+    test['price_log'] = 0
     columnc.append('price')
+    columnc.append('price_log')
     # columnc.append('price_usd')
     # columnc.append('usd')
 
+    # sell_id
+    columnc.append('sell_id')
     test = test[columnc]
     return test
 
@@ -807,20 +888,22 @@ DIR_TEST = 'input/'
 VAL_SIZE = 0.20  # 20%
 
 # TODO Чтение первоначальных признаков
-# train_new = pd.read_csv(DIR_TRAIN + 'Base.csv', lineterminator='\n')
-# train = pd.read_csv(DIR_TRAIN + 'all_auto_ru_09_09_2020.csv', lineterminator='\n')
-# #
-# test = pd.read_csv(DIR_TEST + 'test.csv')
-# sample_submission = pd.read_csv(DIR_TEST + 'sample_submission.csv')
+train_new = pd.read_csv(DIR_TRAIN + 'Base.csv', lineterminator='\n')
+train = pd.read_csv(DIR_TRAIN + 'all_auto_ru_09_09_2020.csv', lineterminator='\n')
 #
-# # TODO Унификация признаков
+test = pd.read_csv(DIR_TEST + 'test.csv')
+sample_submission = pd.read_csv(DIR_TEST + 'sample_submission.csv')
+
+#
+# # # TODO Унификация признаков
 # train = normolizeTrainsData(train, train_new)
 # train.to_csv(DIR_TRAIN + 'Base_all.csv', index=False, encoding="utf-8-sig")
-# exit()
+
+
 #
-# test_normize = normolizeTestData(test)
-# test_normize.to_csv(DIR_TRAIN + 'test_all.csv', index=False, encoding="utf-8-sig")
-# exit()
+test_normize = normolizeTestData(test)
+test_normize.to_csv(DIR_TRAIN + 'test_all.csv', index=False, encoding="utf-8-sig")
+
 
 
 # TODo объединение
@@ -847,6 +930,7 @@ data['mileage_year'] = data['mileage_year'].astype(int)
 # TODO mileage - пробег и установим бинарный признак новая/неновое авто
 CAR_NEW_LIMIT = 500
 
+
 def defineMileageRow(row, params, some):
     if int(row['mileage']) <= CAR_NEW_LIMIT:
         row['car_new'] = 1
@@ -854,20 +938,21 @@ def defineMileageRow(row, params, some):
         row['car_new'] = 0
     return row
 
+
 def defineMileageType(data):
     data = data.apply(defineMileageRow, args=([], 1), axis=1)
     return data
 
+
 data = defineMileageType(data)
 
-num_cols = ['modelDate', 'productionDate',  'production_model', 'enginePower', 'engineDisplacement', 'car_age',
+num_cols = ['modelDate', 'productionDate', 'production_model', 'enginePower', 'engineDisplacement', 'car_age',
             'mileage', 'racing', 'descrip_lenth', 'mileage_year']
 bin_cols = ['condition', 'customs', 'driveSide', 'transmission', 'tcp']
 cat_cols = ['brand', 'bodyType', 'color', 'fuelType', 'vehicleTransmission', 'drivertrain', 'vendor', 'ownersCount',
-         'numberOfDoors', 'vehicleTransmission']
+            'numberOfDoors', 'vehicleTransmission']
 
 num_cols.remove('modelDate')
-
 
 print(imp_num)
 exit()
@@ -933,12 +1018,10 @@ X_sub = data.query('sample == 0').drop(['sample'], axis=1)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=VAL_SIZE, shuffle=True, random_state=RANDOM_SEED)
 
-model = CatBoostRegressor(iterations=5000,
-                          random_seed=RANDOM_SEED,
-                          eval_metric='MAPE',
-                          custom_metric=['R2', 'MAE'],
-                          silent=True,
-                          )
+rf = xgb.XGBRegressor(random_state = RANDOM_SEED)
+
+model = CatBoostRegressor(iterations=5000, random_seed=RANDOM_SEED,eval_metric='MAPE',ustom_metric=['R2', 'MAE'],
+                          silent=True,)
 model.fit(X_train, y_train,
           # cat_features=cat_features_ids,
           eval_set=(X_test, y_test),
@@ -949,10 +1032,3 @@ model.fit(X_train, y_train,
 predict = model.predict(X_test)
 print(f"Точность модели по метрике MAPE: {(mape(y_test, predict)) * 100:0.2f}%")
 
-# print("Список колонок, которых нет в train, но есть в test:", dif_list)
-# dif_list = list(set(test.columns).difference(train.columns))
-# for item in dif_list:
-#     print(test[item].nunique())
-#     exit()
-#     print(item, test[item].nunique())
-# exit()
