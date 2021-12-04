@@ -1,1 +1,3 @@
 https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/first_edition/3.5-classifying-movie-reviews.ipynb
+
+https://colab.research.google.com/drive/1qc-nSgzmk1DmPk1rLZCWWaCq1f8hoiDp#scrollTo=PcGgTQwrtuBj
