@@ -18,10 +18,10 @@ cat_cols = ['brand', 'bodyType', 'model', 'color', 'fuelType',
     car_age
     mileage
 num_cols = ['modelDate', 'productionDate',  'production_model', 'enginePower', 'engineDisplacement', 'car_age', 'mileage', 'racing', 'descrip_lenth', 'mileage_year']
-bin_cols = ['car_new', 'driverSide', 'pts']
+bin_cols = ['car_new', 'driverSide', 'pts', 'state']
 
 cat_cols = ['brand', 'bodyType', 'color', 'fuelType', 'vehicleTransmission', 'drivertrain', 'vendor', 'ownersCount',
-         'numberOfDoors', 'vehicleTransmission']
+         'numberOfDoors', 'vehicleTransmission', 'model']
 
 
 Бираные

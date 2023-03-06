@@ -17,7 +17,7 @@ def remove_dups(values):
 print(remove_dups([1, 12, 4, 1, 4, 8]))
 
 
-# dat = pd.read_csv('data/imdb.csv')
+# dat = pd.read_csv('input/imdb.csv')
 # print(dat.columns)
 # print(dat[dat['Title'] == 'Suicide Squad']['Year'])
 

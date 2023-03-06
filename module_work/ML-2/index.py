@@ -4,9 +4,9 @@ import seaborn as sns
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
-# data = pd.read_csv('data_flats.csv',sep=";")
-# apartment = data.dropna()
-# print(data.shape)
+# input = pd.read_csv('data_flats.csv',sep=";")
+# apartment = input.dropna()
+# print(input.shape)
 # print(apartment.shape)
 
 # from sklearn.preprocessing import MinMaxScaler
@@ -17,8 +17,8 @@ from sklearn.preprocessing import MinMaxScaler
 # scaler = StandardScaler()
 # scaler.fit_transform(test_data)
 
-# data = pd.read_csv('train.csv',sep=",")
-# balance = data['balance_due'].values
+# input = pd.read_csv('train.csv',sep=",")
+# balance = input['balance_due'].values
 # balance_np = balance.reshape(-1,1)
 #
 # scaler = StandardScaler()
@@ -26,9 +26,9 @@ from sklearn.preprocessing import MinMaxScaler
 # print(balance_np.min())
 
 
-# data = pd.read_csv('train.csv',sep=",")
+# input = pd.read_csv('train.csv',sep=",")
 #
-# balance = data[data['balance_due'] > 0]['balance_due'].values
+# balance = input[input['balance_due'] > 0]['balance_due'].values
 #
 # balance_np = np.sqrt(balance)
 #
@@ -37,12 +37,12 @@ from sklearn.preprocessing import MinMaxScaler
 # # print(np.mean(balance_np))
 
 # pd.set_option('display.max_rows', None)
-# data = pd.read_csv('data_flats.csv',sep=";")
+# input = pd.read_csv('data_flats.csv',sep=";")
 #
-# data_ = data[(data['sub_area'] == 'Perovo') | (data['sub_area'] == 'Lefortovo') | (data['sub_area'] == 'Basmannoe')
-#         | (data['sub_area'] == 'Bogorodskoe')][['price_doc', 'sub_area' ]]
-# ax = sns.boxplot(x="sub_area", y="price_doc", data=data_)
-# print(data)
+# data_ = input[(input['sub_area'] == 'Perovo') | (input['sub_area'] == 'Lefortovo') | (input['sub_area'] == 'Basmannoe')
+#         | (input['sub_area'] == 'Bogorodskoe')][['price_doc', 'sub_area' ]]
+# ax = sns.boxplot(x="sub_area", y="price_doc", input=data_)
+# print(input)
 
 # vis_data = pd.read_csv("train.csv",
 #                        encoding = 'ISO-8859-1',
@@ -53,7 +53,7 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 # ecology_dict ={
-#     "no data" : 0,
+#     "no input" : 0,
 #     "poor" : 1,
 #     "satisfactory" : 2,
 #     "good" : 3,

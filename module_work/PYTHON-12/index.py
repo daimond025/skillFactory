@@ -22,16 +22,16 @@ print(df)
 # print(len(root[1]))
 
 
-# data = pd.read_excel("./nakladnaya.xls", header=None, skiprows=2)
-# data = data.dropna(axis=0, how='all')
-# print(data)
-# print(data.iloc[6:8, [0, 2, 6, 9, 11, 12]])
+# input = pd.read_excel("./nakladnaya.xls", header=None, skiprows=2)
+# input = input.dropna(axis=0, how='all')
+# print(input)
+# print(input.iloc[6:8, [0, 2, 6, 9, 11, 12]])
 
-# data = pd.read_excel('http://www.econ.yale.edu/~shiller/data/Fig3-1.xls', header=None)
+# input = pd.read_excel('http://www.econ.yale.edu/~shiller/data/Fig3-1.xls', header=None)
 
 # data_file = pd.ExcelFile('./Fig3-1.xls')
-# data = pd.read_excel(data_file, header=None)
-# print(data)
+# input = pd.read_excel(data_file, header=None)
+# print(input)
 
 # df = pd.read_csv('recipes.csv')
 # ids = list(df['id'])

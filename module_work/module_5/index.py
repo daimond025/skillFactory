@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.linear_model import LogisticRegression
 
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import (confusion_matrix
 from sklearn.metrics import auc, roc_auc_score, roc_curve
 
 def replaceValue(data, columns):

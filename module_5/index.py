@@ -9,7 +9,7 @@ from sklearn.feature_selection import f_classif, mutual_info_classif
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder, StandardScaler, OrdinalEncoder, MinMaxScaler, \
     PolynomialFeatures
 
-from sklearn.model_selection import train_test_split, GridSearchCV
+GridSearch
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.metrics import confusion_matrix

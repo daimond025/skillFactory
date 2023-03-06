@@ -64,8 +64,8 @@ import requests
 # url = 'https://www.banki.ru/banks/ratings/'
 # soup = BeautifulSoup(requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}).text, 'html.parser')
 # all_blocks = soup.find_all('div', class_='layout-column-full')
-# data = all_blocks[2].find('table')
-# df = pd.read_html(str(data))[0]
+# input = all_blocks[2].find('table')
+# df = pd.read_html(str(input))[0]
 # print(df)
 # exit()
 #
@@ -73,10 +73,10 @@ import requests
 # url = 'https://www.cbr.ru/key-indicators/'
 # soup = BeautifulSoup(requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}).text, 'html.parser')
 # all_blocks = soup.find_all('div', class_='key-indicator_content offset-md-2')
-# data = all_blocks[1].find('table')
-# df = pd.read_html(str(data))[0]
+# input = all_blocks[1].find('table')
+# df = pd.read_html(str(input))[0]
 # print(df)
-# df = pd.read_html(str(data))
+# df = pd.read_html(str(input))
 # print(df)
 
 token = 'd3b3353bd3b3353bd3b3353b89d3ca8a3cdd3b3d3b3353bb2de9e0bfd4b7fe50e4fa34c'
@@ -126,8 +126,8 @@ token = 'd3b3353bd3b3353bd3b3353b89d3ca8a3cdd3b3d3b3353bb2de9e0bfd4b7fe50e4fa34c
 #     }
 #     # такой же запрос как в прошлый раз
 #     r = requests.get(url, params=params)
-#     data = r.json()
-#     user_ids += data['response']['items']
+#     input = r.json()
+#     user_ids += input['response']['items']
 #
 #     if (len(user_ids) > 100000):
 #         break
@@ -144,8 +144,8 @@ token = 'd3b3353bd3b3353bd3b3353b89d3ca8a3cdd3b3d3b3353bb2de9e0bfd4b7fe50e4fa34c
 #     }
 #
 #     response_1 = requests.get(url_1, params=params)
-#     data = response_1.json()
-#     users = data['response']['count']
+#     input = response_1.json()
+#     users = input['response']['count']
 #
 #     url_2 = 'https://api.vk.com/method/wall.get'
 #     params = {

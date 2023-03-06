@@ -48,11 +48,11 @@ rf_random.fit(X_train, Y_train)
 pprint(rf_random.best_params_)
 
 #TODO 5.5.2
-# data = pd.read_csv('./data/winequality-red.csv', sep=';')
-# data['quality'] = (data.quality >= 6).astype(int)
+# input = pd.read_csv('./input/winequality-red.csv', sep=';')
+# input['quality'] = (input.quality >= 6).astype(int)
 #
-# X = data.drop('quality', axis=1)
-# Y = data['quality']
+# X = input.drop('quality', axis=1)
+# Y = input['quality']
 #
 # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
 # log_reg = LogisticRegression()
@@ -74,10 +74,10 @@ pprint(rf_random.best_params_)
 # exit()
 #
 
-# data = pd.read_csv('./data/petrol_consumption.csv')
+# input = pd.read_csv('./input/petrol_consumption.csv')
 #
-# X = data.iloc[:, :-1].to_numpy()
-# Y = data.iloc[:, -1].to_numpy()
+# X = input.iloc[:, :-1].to_numpy()
+# Y = input.iloc[:, -1].to_numpy()
 #
 # RANDOM_SEED = 42
 # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.30, random_state=RANDOM_SEED)
@@ -88,10 +88,10 @@ pprint(rf_random.best_params_)
 # rmse = np.sqrt(mse)
 # print(clf_tree.get_depth())
 
-# data = pd.read_csv('./data/bill_authentication.csv')
+# input = pd.read_csv('./input/bill_authentication.csv')
 #
-# X = data.iloc[:, :-1].to_numpy()
-# Y = data.iloc[:, -1].to_numpy()
+# X = input.iloc[:, :-1].to_numpy()
+# Y = input.iloc[:, -1].to_numpy()
 #
 # RANDOM_SEED = 17
 # X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.20, random_state=17)

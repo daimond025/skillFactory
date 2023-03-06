@@ -16,7 +16,7 @@ def print_regression_metrics(y_true, y_pred):
 
 def prepare_boston_data():
     data = load_boston()
-    X, y = data['data'], data['target']
+    X, y = data['input'], data['target']
     # Нормализовать даннные с помощью стандартной нормализации
     X = (X - X.mean(axis=0)) / X.std(axis=0)
     # Добавить фиктивный столбец единиц (bias линейной модели)
@@ -95,7 +95,7 @@ class LinReg(RegOptimizer):
 
 def prepare_boston_data_new():
     data = load_boston()
-    X, y = data['data'], data['target']
+    X, y = data['input'], data['target']
 
     X = np.hstack([X, np.sqrt(X[:, 5:6]), X[:, 6:7] ** 3])
 

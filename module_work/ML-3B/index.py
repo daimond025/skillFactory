@@ -26,8 +26,8 @@ import  pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-data = pd.read_csv('data.csv')
-# print(data.corr()['price_range'].sort_values())
+data = pd.read_csv('input.csv')
+# print(input.corr()['price_range'].sort_values())
 data = data[['touch_screen','px_height', 'px_width', 'battery_power', 'ram', 'price_range']].copy()
 
 X = data.iloc[:, :-1].to_numpy()

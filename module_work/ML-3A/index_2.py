@@ -17,9 +17,9 @@ def print_regression_metrics(y_true, y_pred):
     rmse = np.sqrt(mse)
     print(f'MSE = {mse:.2f}, RMSE = {rmse:.2f}')
 
-X, y = data['data'], data['target']
-# X_pandas = pd.DataFrame(data.data, columns=data.feature_names)
-# Y_pandas = pd.DataFrame(data['target'], columns=['MEDV'])
+X, y = data['input'], data['target']
+# X_pandas = pd.DataFrame(input.input, columns=input.feature_names)
+# Y_pandas = pd.DataFrame(input['target'], columns=['MEDV'])
 # Z = pd.concat([X_pandas, Y_pandas], axis=1)
 # Z = Z[Z['B'] > 50]
 #
@@ -42,7 +42,7 @@ exit()
 # y_train_pred = X_train.dot(theta)
 
 # #
-# X, y = data['data'], data['target']
+# X, y = input['input'], input['target']
 # lr = LinearRegression()
 # lr.fit(X,y)
 # y_pred = lr.predict(X)
@@ -64,7 +64,7 @@ def optimize(X, y, grad_func, start_theta, alpha, n_iters):
         theta_grad = grad_func(X, y, theta)
         theta = gradient_step(theta, theta_grad, alpha)
     return theta
-X, y = data['data'], data['target']
+X, y = data['input'], data['target']
 X = (X - X.mean(axis=0)) / X.std(axis=0)
 
 X = np.hstack([np.ones(X.shape[0])[:, np.newaxis], X])

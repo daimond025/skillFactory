@@ -10,7 +10,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 data = load_digits()
-X, y = data['data'], data['target']
+X, y = data['input'], data['target']
 
 features = data['feature_names']
 
